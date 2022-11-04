@@ -1,9 +1,10 @@
 # Change Log
 
-All notable changes to the "helloworld" extension will be documented in this file.
+All notable changes to the "kusion" extension will be documented in this file.
 
-Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
+## [0.0.1] - 2022-11-04
 
-## [Unreleased]
+### Added
 
-- Initial release
+- Initialize the kusion extension
+- Support basic operations: kusion compile/apply
