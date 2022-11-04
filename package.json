@@ -12,16 +12,42 @@
 		"Other"
 	],
 	"activationEvents": [
-		"onCommand:kusion.helloWorld"
+		"onCommand:kusion.preview",
+		"onCommand:kusion.compile",
+		"onCommand:kusion.apply"
 	],
 	"main": "./out/extension.js",
 	"contributes": {
 		"commands": [
 			{
-				"command": "kusion.helloWorld",
-				"title": "Hello World"
+				"command": "kusion.preview",
+				"title": "Kusion Preview"
+			},
+			{
+				"command": "kusion.compile",
+				"title": "Kusion Compile"
+			},
+			{
+				"command": "kusion.apply",
+				"title": "Kusion Apply"
 			}
-		]
+		],
+		"menus": {
+			"editor/context":[
+				{
+					"command": "kusion.preview",
+					"group": "Kusion group@1"
+				},
+				{
+					"command": "kusion.compile",
+					"group": "Kusion group@2"
+				},
+				{
+					"command": "kusion.apply",
+					"group": "Kusion group@3"
+				}
+			]
+		}
 	},
 	"scripts": {
 		"vscode:prepublish": "npm run compile",
