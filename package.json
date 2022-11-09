@@ -2,60 +2,95 @@
   "name": "kusion",
   "displayName": "Kusion",
   "description": "",
-	"version": "0.0.1",
-	"publisher": "KusionStack",
-	"repository": "https://github.com/amyXia1994/vscode-kusion",
-	"engines": {
-		"vscode": "^1.71.0"
-	},
-	"categories": [
-		"Other"
-	],
-	"activationEvents": [
-		"onCommand:kusion.preview",
-		"onCommand:kusion.compile",
-		"onCommand:kusion.apply"
-	],
-	"main": "./out/extension.js",
-	"contributes": {
-		"commands": [
+  "version": "0.0.1",
+  "publisher": "KusionStack",
+  "repository": "https://github.com/amyXia1994/vscode-kusion",
+  "engines": {
+    "vscode": "^1.71.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onLanguage:KCL"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "taskDefinitions": [
 			{
-				"command": "kusion.preview",
-				"title": "Kusion Preview"
+				"type": "kusion",
+				"required": [
+					"task"
+				],
+				"properties": {
+					"task": {
+						"type": "string",
+						"description": "The Kusion task to customize"
+					},
+					"file": {
+						"type": "string",
+						"description": "The Kusion file that provides the task. Can be omitted."
+					}
+				}
 			},
 			{
-				"command": "kusion.compile",
-				"title": "Kusion Compile"
-			},
-			{
-				"command": "kusion.apply",
-				"title": "Kusion Apply"
+				"type": "custombuildscript",
+				"required": [
+					"flavor"
+				],
+				"properties": {
+					"flavor": {
+						"type": "string",
+						"description": "The build flavor. Should be either '32' or '64'."
+					},
+					"flags": {
+						"type": "array",
+						"description": "Additional build flags."
+					}
+				}
 			}
 		],
-		"menus": {
-			"editor/context":[
-				{
-					"command": "kusion.preview",
-					"group": "Kusion group@1"
-				},
-				{
-					"command": "kusion.compile",
-					"group": "Kusion group@2"
-				},
-				{
-					"command": "kusion.apply",
-					"group": "Kusion group@3"
-				}
-			]
-		}
-	},
-	"scripts": {
-		"vscode:prepublish": "npm run compile",
-		"compile": "tsc -p ./",
-		"lint": "eslint . --ext .ts,.tsx",
-		"watch": "tsc -watch -p ./"
-	},
-	"devDependencies": {
+    "commands": [
+      {
+        "command": "kusion.preview",
+        "title": "Kusion Preview"
+      },
+      {
+        "command": "kusion.compile",
+        "title": "Kusion Compile"
+      },
+      {
+        "command": "kusion.apply",
+        "title": "Kusion Apply"
+      }
+    ],
+    "menus": {
+      "editor/context": [
+        {
+          "command": "kusion.preview",
+          "group": "Kusion group@1",
+          "when": "inKusionProject"
+        },
+        {
+          "command": "kusion.compile",
+          "group": "Kusion group@2",
+          "when": "inKusionProject"
+        },
+        {
+          "command": "kusion.apply",
+          "group": "Kusion group@3",
+          "when": "inKusionProject"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "lint": "eslint . --ext .ts,.tsx",
+    "watch": "tsc -watch -p ./"
+  },
+  "devDependencies": {
     "@types/node": "^17.0.36",
     "@types/vscode": "^1.67.0",
     "@typescript-eslint/eslint-plugin": "^5.37.0",
