@@ -2,7 +2,7 @@
   "name": "kusion",
   "displayName": "Kusion",
   "description": "",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "publisher": "KusionStack",
   "repository": "https://github.com/amyXia1994/vscode-kusion",
   "engines": {
