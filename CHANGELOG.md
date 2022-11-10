@@ -18,3 +18,9 @@ All notable changes to the "kusion" extension will be documented in this file.
 ### Updated
 
 - Support user interaction for execution of kusion preview/compile/apply
+
+## [0.0.4] - 2022-11-10
+
+### Updated
+
+- Use KusionStack icon as the extension icon.

@@ -2,12 +2,13 @@
   "name": "kusion",
   "displayName": "Kusion",
   "description": "",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "publisher": "KusionStack",
   "repository": "https://github.com/KusionStack/vscode-kusion",
   "engines": {
     "vscode": "^1.71.0"
   },
+  "icon": "images/kusion.png",
   "categories": [
     "Other"
   ],
