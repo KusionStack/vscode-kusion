@@ -1,6 +1,6 @@
 # Kusion Extension for Visual Studio Code
 
-The [VS Code Kusion extension](https://marketplace.visualstudio.com/items?itemName=kusion.kusion) provides convenient operations to deliver KCL configurations to Clouds.
+The [VS Code Kusion extension](https://marketplace.visualstudio.com/items?itemName=KusionStack.kusion) provides convenient operations to deliver KCL configurations to Clouds.
 
 ## Quick Start
 
