@@ -4,7 +4,7 @@
   "description": "",
   "version": "0.0.2",
   "publisher": "KusionStack",
-  "repository": "https://github.com/amyXia1994/vscode-kusion",
+  "repository": "https://github.com/KusionStack/vscode-kusion",
   "engines": {
     "vscode": "^1.71.0"
   },

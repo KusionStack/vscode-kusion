@@ -15,7 +15,7 @@ This guide will explain the process to set up your development environment to wo
 2. Clone the repository and run npm install:
 
 ```
-git clone https://github.com/amyXia1994/vscode-kusion.git
+git clone https://github.com/KusionStack/vscode-kusion.git
 cd vscode-kusion
 npm install
 code .
@@ -34,8 +34,8 @@ To run the extension, open the project with VS Code and open the Run view (Comma
     ```
 * To publish the extension to the VS Code extension market, you need to first build an extension package and then publish it:
     ```shell
-    vsce package --baseImagesUrl https://github.com/amyXia1994/vscode-kusion.git
-    vsce publish --baseImagesUrl https://github.com/amyXia1994/vscode-kusion.git
+    vsce package --baseImagesUrl https://github.com/KusionStack/vscode-kusion.git
+    vsce publish --baseImagesUrl https://github.com/KusionStack/vscode-kusion.git
     ```
 
 
