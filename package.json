@@ -53,33 +53,24 @@
 		],
     "commands": [
       {
-        "command": "kusion.preview",
-        "title": "Kusion Preview"
-      },
-      {
         "command": "kusion.compile",
-        "title": "Kusion Compile"
+        "title": "Kusion: Compile"
       },
       {
         "command": "kusion.apply",
-        "title": "Kusion Apply"
+        "title": "Kusion: Preview Live Diff and Apply"
       }
     ],
     "menus": {
       "editor/context": [
         {
-          "command": "kusion.preview",
+          "command": "kusion.compile",
           "group": "Kusion group@1",
           "when": "inKusionProject"
         },
         {
-          "command": "kusion.compile",
-          "group": "Kusion group@2",
-          "when": "inKusionProject"
-        },
-        {
           "command": "kusion.apply",
-          "group": "Kusion group@3",
+          "group": "Kusion group@2",
           "when": "inKusionProject"
         }
       ]

@@ -26,8 +26,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
 	const kusionCompile = vscode.commands.registerCommand('kusion.compile', commands.kusionCompile);
 	const kusionApply = vscode.commands.registerCommand('kusion.apply', commands.kusionApply);
-	const kusionPreview = vscode.commands.registerCommand('kusion.preview', commands.kusionPreview);
-	context.subscriptions.push(kusionPreview, kusionCompile, kusionApply);
+	context.subscriptions.push(kusionCompile, kusionApply);
 	await setContextValue(KUSION_PROJECT_CONTEXT_NAME, true);
 }
 
