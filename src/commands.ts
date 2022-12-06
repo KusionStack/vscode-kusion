@@ -54,10 +54,6 @@ export function kusionApply() : void {
     kusionCommandRun('apply');
 }
 
-export function kusionPreview() : void {
-    kusionCommandRun('preview');
-}
-
 
 // const kusionCompile = vscode.commands.registerCommand('kusion.compile', async () => {
 //     let kusionOutput = vscode.window.createOutputChannel('kusion');
