@@ -7,7 +7,7 @@ import * as fs from 'fs';
 import * as vscode from 'vscode';
 
 export class KusionTaskProvider implements vscode.TaskProvider {
-	static KusionType = 'kusion';
+	static kusionType = 'kusion';
 	private kusionPromise: Thenable<vscode.Task[]> | undefined = undefined;
 
 	constructor(workspaceRoot: string) {

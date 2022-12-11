@@ -23,7 +23,7 @@ export async function activate(context: vscode.ExtensionContext) {
 		return;
 	}
 
-	kusionTaskProvider = vscode.tasks.registerTaskProvider(kusion_task_provider.KusionTaskProvider.KusionType, new kusion_task_provider.KusionTaskProvider(workspaceRoot));
+	kusionTaskProvider = vscode.tasks.registerTaskProvider(kusion_task_provider.KusionTaskProvider.kusionType, new kusion_task_provider.KusionTaskProvider(workspaceRoot));
 	const kusionCompile = vscode.commands.registerCommand('kusion.compile', commands.kusionCompile);
 	const kusionApply = vscode.commands.registerCommand('kusion.apply', commands.kusionApply);
 	context.subscriptions.push(kusionCompile, kusionApply);
