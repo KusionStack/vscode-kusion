@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import * as tasks from './tasks';
+import * as quickstart from './quickstart/setup';
 
 
 export function createTask(taskName: string, stackPath: string): vscode.Task|undefined {
@@ -51,37 +52,9 @@ export function kusionCompile() : void {
 }
 
 export function kusionApply() : void {
-    kusionCommandRun('apply');
+    if (!quickstart.canApply()) {
+        vscode.window.showWarningMessage("Minikube not ready, please wait for the minikube to start");
+    } else {
+        kusionCommandRun('apply');
+    }
 }
-
-
-// const kusionCompile = vscode.commands.registerCommand('kusion.compile', async () => {
-//     let kusionOutput = vscode.window.createOutputChannel('kusion');
-//     kusionOutput.show();
-
-//     const fileName = kusion_task_provider.activeDocumentPath();
-//     if (fileName !== undefined) {
-//         const stackPath = kusion_task_provider.getStackPath(fileName);
-//         if (stackPath !== undefined) {
-//             const script = kusion_task_provider.compileScript(stackPath);
-//             const output = await execShell(script);
-//             if (output === "") {
-//                 kusionOutput.appendLine(kusion_task_provider.compileSuccessMsg(stackPath));
-//             } else {
-//                 kusionOutput.append(output);
-//             }
-//         }
-//     } else {
-//         kusionOutput.append("not in stack");
-//     }
-// });
-
-// const execShell = (cmd: string) =>
-//     new Promise<string>((resolve, reject) => {
-//         cp.exec(cmd, (err, out) => {
-//             if (err) {
-//                 return reject(err);
-//             }
-//             return resolve(out);
-//         });
-//     });
