@@ -6,9 +6,7 @@ export const KUSION_QUICK_START = process.env.KUSION_QUICK_START === 'true';
 
 export function setup() {
     if (KUSION_QUICK_START) {
-		const output = vscode.window.createOutputChannel("starting minikube");
-		output.show();
-		child_process.exec("minikube start");
+        const output = vscode.window.createOutputChannel("kusion-minikube");
 		minikube.waitMinikubeStart(output);
 	}
 }
