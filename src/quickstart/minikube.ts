@@ -14,6 +14,7 @@ export function waitMinikubeStart(output: vscode.OutputChannel): void {
         title: "Starting Minikube",
         cancellable: false
     }, (progress) => {
+        output.show();
         output.appendLine("checking minikube status...");
         progress.report({ message: "It may take minitues..." });
 
@@ -26,21 +27,18 @@ export function waitMinikubeStart(output: vscode.OutputChannel): void {
                     resolve();
                     output.appendLine("minikube started!");
                 };
-                const afterStarting = () => {
+                const startMinikube = () => {
                     output.appendLine("minikube starting...");
+                    child_process.exec("minikube start");
                 };
-                checkMinikueReady(afterReady, afterStarting);
+                checkMinikueReady(startMinikube, afterReady);
             }, 3000);
         });
         return p;
     });
 }
 
-function checkMinikueReady(afterReady: ()=>void, afterStarting: () => void):void {
-    if (!minikubeStarting) {
-        minikubeStarting = true;
-        afterStarting();
-    }
+function checkMinikueReady(startMinikube: ()=> void, afterReady: ()=>void):void {
     child_process.exec("minikube status -o json", (error, stdout, stderr) => {
         if (stdout !== "") {
             console.log(`minikube status stdout: ${stdout}`);
@@ -50,7 +48,11 @@ function checkMinikueReady(afterReady: ()=>void, afterStarting: () => void):void
             try {
                 const status = JSON.parse(stdout);
                 if (isMyType(status)) {
-                    const ready = status!==undefined && status.Host === status.Kubelet &&  status.Kubelet === status.APIServer && status.APIServer === "Running" && status.Kubeconfig === "Configured";
+                    const ready = status !== undefined && status.Host === status.Kubelet &&  status.Kubelet === status.APIServer && status.APIServer === "Running" && status.Kubeconfig === "Configured";
+                    if (!ready && !minikubeStarting) {
+                        minikubeStarting = true;
+                        startMinikube();
+                    }
                     if (ready && !minikubeRunning) {
                         minikubeRunning = true;
                         afterReady();
@@ -59,8 +61,16 @@ function checkMinikueReady(afterReady: ()=>void, afterStarting: () => void):void
                 return;
             } catch(e) {
                 // before minikube started, the `minikube status -o json` command may return invalid json with warning message, no need to handle json parse error
+                if(!minikubeStarting) {
+                    minikubeStarting = true;
+                    startMinikube();
+                }
                 return;
             }
+        }
+        if(!minikubeStarting) {
+            minikubeStarting = true;
+            startMinikube();
         }
         if (error) {
             console.log(`error: ${error.message}`);
