@@ -4,6 +4,7 @@ import * as vscode from 'vscode';
 import * as kusion_task_provider from './tasks';
 import * as commands from "./commands";
 import {setContextValue} from './util';
+import * as quickstart from './quickstart/setup';
 
 let kusionTaskProvider: vscode.Disposable | undefined;
 const KUSION_PROJECT_CONTEXT_NAME = "inKusionProject";
@@ -23,11 +24,11 @@ export async function activate(context: vscode.ExtensionContext) {
 	}
 
 	kusionTaskProvider = vscode.tasks.registerTaskProvider(kusion_task_provider.KusionTaskProvider.KusionType, new kusion_task_provider.KusionTaskProvider(workspaceRoot));
-
 	const kusionCompile = vscode.commands.registerCommand('kusion.compile', commands.kusionCompile);
 	const kusionApply = vscode.commands.registerCommand('kusion.apply', commands.kusionApply);
 	context.subscriptions.push(kusionCompile, kusionApply);
 	await setContextValue(KUSION_PROJECT_CONTEXT_NAME, true);
+	quickstart.setup();
 }
 
 

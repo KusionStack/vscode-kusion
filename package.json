@@ -18,39 +18,39 @@
   "main": "./out/extension.js",
   "contributes": {
     "taskDefinitions": [
-			{
-				"type": "kusion",
-				"required": [
-					"task"
-				],
-				"properties": {
-					"task": {
-						"type": "string",
-						"description": "The Kusion task to customize"
-					},
-					"file": {
-						"type": "string",
-						"description": "The Kusion file that provides the task. Can be omitted."
-					}
-				}
-			},
-			{
-				"type": "custombuildscript",
-				"required": [
-					"flavor"
-				],
-				"properties": {
-					"flavor": {
-						"type": "string",
-						"description": "The build flavor. Should be either '32' or '64'."
-					},
-					"flags": {
-						"type": "array",
-						"description": "Additional build flags."
-					}
-				}
-			}
-		],
+      {
+        "type": "kusion",
+        "required": [
+          "task"
+        ],
+        "properties": {
+          "task": {
+            "type": "string",
+            "description": "The Kusion task to customize"
+          },
+          "file": {
+            "type": "string",
+            "description": "The Kusion file that provides the task. Can be omitted."
+          }
+        }
+      },
+      {
+        "type": "custombuildscript",
+        "required": [
+          "flavor"
+        ],
+        "properties": {
+          "flavor": {
+            "type": "string",
+            "description": "The build flavor. Should be either '32' or '64'."
+          },
+          "flags": {
+            "type": "array",
+            "description": "Additional build flags."
+          }
+        }
+      }
+    ],
     "commands": [
       {
         "command": "kusion.compile",
@@ -93,5 +93,9 @@
     "eslint-plugin-n": "^15.2.5",
     "eslint-plugin-promise": "^6.0.1",
     "typescript": "^4.8.3"
+  },
+  "dependencies": {
+    "@types/shelljs": "^0.8.11",
+    "shelljs": "^0.8.5"
   }
 }

@@ -4,9 +4,7 @@
  *--------------------------------------------------------------------------------------------*/
 import * as path from 'path';
 import * as fs from 'fs';
-import * as cp from 'child_process';
 import * as vscode from 'vscode';
-import { error } from 'console';
 
 export class KusionTaskProvider implements vscode.TaskProvider {
 	static KusionType = 'kusion';
@@ -27,31 +25,7 @@ export class KusionTaskProvider implements vscode.TaskProvider {
 		return this.kusionPromise;
 	}
 
-	public resolveTask(_task: vscode.Task): vscode.Task | undefined {        
-
-		// const task = _task.definition.task;
-		// A Kusion task consists of a task and an optional file as specified in KusionTaskDefinition
-		// Make sure that this looks like a Kusion task by checking that there is a task.
-		// if (task) {
-        //     const fileName = activeDocumentPath();
-        //     if (!fileName) {
-        //         return undefined;
-        //     }
-        //     const stackPath = getStackPath(fileName);
-        //     if (!stackPath) {
-        //         return undefined;
-        //     }
-
-		// 	// resolveTask requires that the same definition object be used.
-		// 	const definition: KusionTaskDefinition = <any>_task.definition;
-		// 	return new vscode.Task(
-        //         definition,
-        //         _task.scope ?? vscode.TaskScope.Workspace,
-        //         definition.task,
-        //         'kusion',
-        //         new vscode.ShellExecution(applyScript(stackPath))
-        //     );
-		// }
+	public resolveTask(_task: vscode.Task): vscode.Task | undefined {
 		return _task;
 	}
 }
@@ -162,7 +136,6 @@ export const kusionCommands = new Map<string,  (stackPath:string) => string> ([
 
 
 export function buildKusionTask(definition: KusionTaskDefinition, scope: vscode.WorkspaceFolder | vscode.TaskScope.Global | vscode.TaskScope.Workspace, taskName: string, stackPath: string): vscode.Task|undefined {
-
     const taskScript = kusionCommands.get(taskName);
     if (!taskScript) {
         return undefined;
