@@ -5,9 +5,12 @@ import * as child_process from 'child_process';
 var minikubeRunning = false;
 var minikubeStarting = false;
 const quickstartAppops = "appops";
-const quickstartProject = "guestbook-frontend";
+const quickstartProject = "guestbook";
 const quickstartSvc = "frontend";
 const quickstartSvcPort = "80";
+const quickstartFrontendPod = quickstartSvc;
+const quickstartRedisLeader = "redis-leader";
+const quickstartRedisFollower = "redis-follower";
 
 type MinikubeStatus = {
     Name: string
@@ -102,9 +105,10 @@ export function notifySvc(stackPath: string) {
     const stackRelative = path.relative(workspaceRoot.uri.fsPath, stackPath);
     const projectPath = path.join(quickstartAppops, quickstartProject);
     if (!stackRelative.startsWith(projectPath)) {
+        // only check and notify svc detection in guestbook project
         return;
     }
-    function afterSvcCreated(): void {
+    function afterSvcPodReady(): void {
         let defaultPort = 4000;
 
         function portForward(): void {
@@ -126,18 +130,20 @@ export function notifySvc(stackPath: string) {
             });
         }
 
-        vscode.window.showInformationMessage(`Detect Service changed, type: ClusterIP. Forward Port ${quickstartSvcPort}?`, 'Forward Port').then((opt)=>{
+        vscode.window.showInformationMessage(`Detect Service with type: ClusterIP. Forward Port ${quickstartSvcPort}?`, 'Forward Port').then((opt)=>{
             if (opt !== 'Forward Port') {
                 return;
             }
             portForward();
         });
     }
-    waitForServiceCreate(afterSvcCreated);
+    waitForServiceReady(afterSvcPodReady);
 }
 
 
-function waitForServiceCreate(afterSvcCreated: ()=>void): void {
+function waitForServiceReady(afterSvcPodReady: ()=>void): void {
+    var svcReady = false;
+    var podReady = false;
     let refreshIntervalId = setInterval(()=>{
         child_process.exec(`kubectl get svc -n ${quickstartProject}`, (error, stdout, stderr) => {
             if (error) {
@@ -146,15 +152,59 @@ function waitForServiceCreate(afterSvcCreated: ()=>void): void {
                 return;
             }
             
-            if (stdout.startsWith("NAME") && stdout.includes(quickstartSvc)) {
+            if (stdout.startsWith("NAME") && stdout.includes(quickstartSvc) && !svcReady) {
                 console.log(`${stdout}`);
                 console.log("svc created");
                 clearInterval(refreshIntervalId);
-                afterSvcCreated();
+                svcReady = true;
                 return;
             }
 
-            if (!stderr || stderr.startsWith("No resources found in")) {
+            if (!stdout || stderr.startsWith("No resources found in")) {
+                console.log(stderr);
+                return;
+            }
+        });
+
+
+    }, 5000);
+    let refreshPodIntervalId = setInterval(()=>{
+        child_process.exec(`kubectl get pod -n ${quickstartProject}`, (error, stdout, stderr) => {
+            if (error) {
+                console.log(`failed to get pod: ${error}`);
+                clearInterval(refreshPodIntervalId);
+                return;
+            }
+            
+            if (svcReady && stdout.startsWith("NAME")) {
+                console.log(`${stdout}`);
+                var pods = stdout.split('\n');
+                if (pods.length >= 1) {
+                    pods.shift();
+                    var podRunning = 0;
+                    pods.forEach((pod: string)=> {
+                        if(pod.startsWith(quickstartFrontendPod) && pod.includes("Running")) {
+                            podRunning += 1;
+                        }
+                        if (pod.startsWith(quickstartRedisLeader) && pod.includes("Running")) {
+                            podRunning += 1;
+                        }
+
+                        if (pod.startsWith(quickstartRedisFollower) && pod.includes("Running")) {
+                            podRunning += 1;
+                        }
+                    });
+                    if (podRunning === 3 && !podReady) {
+                        podReady = true;
+                        clearInterval(refreshPodIntervalId);
+                        console.log("pod running");
+                        afterSvcPodReady();
+                        return;
+                    }
+                }
+            }
+
+            if (!stdout || stderr.startsWith("No resources found in")) {
                 console.log(stderr);
                 return;
             }

@@ -24,3 +24,9 @@ All notable changes to the "kusion" extension will be documented in this file.
 ### Updated
 
 - Use KusionStack icon as the extension icon.
+
+## [0.0.6] - 2022-12-13
+
+### Added
+
+- Add quick start support on minikube automatically starting and notification about intended service operation.
