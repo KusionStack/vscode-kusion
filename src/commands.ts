@@ -2,7 +2,6 @@ import * as vscode from 'vscode';
 import * as tasks from './tasks';
 import * as quickstart from './quickstart/setup';
 
-
 export function createTask(taskName: string, stackPath: string): vscode.Task|undefined {
     const definition: tasks.KusionTaskDefinition = {
         task: taskName,
@@ -45,6 +44,7 @@ function kusionCommandRun(commandName: string): void {
         return;
     }
     vscode.tasks.executeTask(task);
+    quickstart.checkAndNotifySvc(stackPath);
 }
 
 export function kusionCompile() : void {

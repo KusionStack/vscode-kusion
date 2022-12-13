@@ -1,5 +1,4 @@
 import * as vscode from 'vscode';
-import * as child_process from 'child_process';
 import * as minikube from './minikube';
 
 export const KUSION_QUICK_START = process.env.KUSION_QUICK_START === 'true';
@@ -16,5 +15,11 @@ export function canApply(): boolean {
         return minikube.checkMinikubeRunning();
     } else {
         return true;
+    }
+}
+
+export function checkAndNotifySvc(stackPath: string) {
+    if (KUSION_QUICK_START) {
+        minikube.notifySvc(stackPath);
     }
 }

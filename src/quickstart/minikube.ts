@@ -1,8 +1,22 @@
 import * as vscode from 'vscode';
+import * as path from 'path';
 import * as child_process from 'child_process';
 
 var minikubeRunning = false;
 var minikubeStarting = false;
+const quickstartAppops = "appops";
+const quickstartProject = "guestbook-frontend";
+const quickstartSvc = "frontend";
+const quickstartSvcPort = "80";
+
+type MinikubeStatus = {
+    Name: string
+    Host: string
+    Kubelet: string
+    APIServer: string
+    Kubeconfig: string
+    Worker: boolean
+};
 
 export function checkMinikubeRunning():boolean {
     return minikubeRunning;
@@ -83,11 +97,67 @@ function checkMinikueReady(startMinikube: ()=> void, afterReady: ()=>void):void 
     });
 }
 
-type MinikubeStatus = {
-    Name: string
-    Host: string
-    Kubelet: string
-    APIServer: string
-    Kubeconfig: string
-    Worker: boolean
-};
+export function notifySvc(stackPath: string) {
+    const workspaceRoot = vscode.workspace.workspaceFolders![0]; // safe, see extension.ts activate()
+    const stackRelative = path.relative(workspaceRoot.uri.fsPath, stackPath);
+    const projectPath = path.join(quickstartAppops, quickstartProject);
+    if (!stackRelative.startsWith(projectPath)) {
+        return;
+    }
+    function afterSvcCreated(): void {
+        let defaultPort = 4000;
+
+        function portForward(): void {
+            const port = defaultPort.toString();
+            const forwardCmd = `kubectl port-forward -n ${quickstartProject} svc/${quickstartSvc} ${port}:${quickstartSvcPort}`;
+            child_process.exec(forwardCmd, (error) => {
+                if (error) {
+                    if (error.code === 1 && error.message.includes("bind: address already in use unable to create listener")) {
+                        console.log(`port ${port} already in use, changing to another`);
+                        defaultPort += 1;
+                        portForward();
+                        return;
+                    }
+                    if (error?.signal === "SIGTERM") {
+                        vscode.window.showWarningMessage(`port-forward ${port}:${quickstartSvcPort} terminated.`);
+                        return;
+                    }
+                }
+            });
+        }
+
+        vscode.window.showInformationMessage(`Detect Service changed, type: ClusterIP. Forward Port ${quickstartSvcPort}?`, 'Forward Port').then((opt)=>{
+            if (opt !== 'Forward Port') {
+                return;
+            }
+            portForward();
+        });
+    }
+    waitForServiceCreate(afterSvcCreated);
+}
+
+
+function waitForServiceCreate(afterSvcCreated: ()=>void): void {
+    let refreshIntervalId = setInterval(()=>{
+        child_process.exec(`kubectl get svc -n ${quickstartProject}`, (error, stdout, stderr) => {
+            if (error) {
+                console.log(`failed to get svc: ${error}`);
+                clearInterval(refreshIntervalId);
+                return;
+            }
+            
+            if (stdout.startsWith("NAME") && stdout.includes(quickstartSvc)) {
+                console.log(`${stdout}`);
+                console.log("svc created");
+                clearInterval(refreshIntervalId);
+                afterSvcCreated();
+                return;
+            }
+
+            if (!stderr || stderr.startsWith("No resources found in")) {
+                console.log(stderr);
+                return;
+            }
+        });
+    }, 5000);
+}
