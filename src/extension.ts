@@ -26,6 +26,7 @@ export async function activate(context: vscode.ExtensionContext) {
 	kusionTaskProvider = vscode.tasks.registerTaskProvider(kusion_task_provider.KusionTaskProvider.kusionType, new kusion_task_provider.KusionTaskProvider(workspaceRoot));
 	const kusionCompile = vscode.commands.registerCommand('kusion.compile', commands.kusionCompile);
 	const kusionApply = vscode.commands.registerCommand('kusion.apply', commands.kusionApply);
+	const createKusionProject = vscode.commands.registerCommand('kusion.createProject', () => {vscode.window.showWarningMessage("not implemented yet.");});
 	context.subscriptions.push(kusionCompile, kusionApply);
 	await setContextValue(KUSION_PROJECT_CONTEXT_NAME, true);
 	quickstart.setup();
