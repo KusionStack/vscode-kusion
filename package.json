@@ -8,7 +8,7 @@
   "engines": {
     "vscode": "^1.71.0"
   },
-  "icon": "images/kusion.png",
+  "icon": "./images/kusion.png",
   "categories": [
     "Other"
   ],
@@ -19,10 +19,10 @@
   "contributes": {
     "views": {
       "kusionExplorer": [
-          {
-              "id": "kusionProjects",
-              "name": "kusion projects"
-          }
+        {
+          "id": "kusionProjects",
+          "name": "kusion projects"
+        }
       ]
     },
     "viewsContainers": {
@@ -76,6 +76,21 @@
     ],
     "commands": [
       {
+        "command": "kusion.showPreview",
+        "category": "Kusion",
+        "title": "Open Data Preview",
+        "icon": {
+          "light": "./images/preview-light.svg",
+          "dark": "./images/preview-dark.svg"
+        }
+      },
+      {
+        "command": "kusion.showPreviewToSide",
+        "category": "Kusion",
+        "title": "Open Data Preview to the Side",
+        "icon": "$(open-preview)"
+      },
+      {
         "command": "kusion.compile",
         "category": "Kusion",
         "title": "Compile"
@@ -92,6 +107,13 @@
       }
     ],
     "menus": {
+      "editor/title": [
+        {
+          "command": "kusion.showPreviewToSide",
+          "when": "editorLangId == KCL",
+          "group": "navigation"
+        }
+      ],
       "editor/context": [
         {
           "command": "kusion.compile",
@@ -126,6 +148,7 @@
   },
   "dependencies": {
     "@types/shelljs": "^0.8.11",
-    "shelljs": "^0.8.5"
+    "shelljs": "^0.8.5",
+    "vscode-uri": "^3.0.3"
   }
 }

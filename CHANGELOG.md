@@ -30,3 +30,10 @@ All notable changes to the "kusion" extension will be documented in this file.
 ### Added
 
 - Add quick start support on minikube automatically starting and notification about intended service operation.
+
+## [0.0.7] - 2023-3-2
+
+### Added
+
+- Add the Kusion view container to the primary activity bar.
+- Support Stack output data preview.
