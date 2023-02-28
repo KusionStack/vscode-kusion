@@ -1,6 +1,8 @@
 import * as vscode from 'vscode';
 import * as tasks from './tasks';
 import * as quickstart from './quickstart/setup';
+import * as dataPreview from './preview';
+import * as util from './util';
 
 export function createTask(taskName: string, stackPath: string): vscode.Task|undefined {
     const definition: tasks.KusionTaskDefinition = {
@@ -57,4 +59,12 @@ export function kusionApply() : void {
     } else {
         kusionCommandRun('apply');
     }
+}
+
+export function kusionShowDataPreviewCommand() : void {
+    dataPreview.showDataPreview({sideBySide: false, locked: true});
+}
+
+export function kusionShowDataPreviewToSideCommand() : void {
+    dataPreview.showDataPreview({sideBySide: true, locked: true});
 }
