@@ -77,15 +77,18 @@
     "commands": [
       {
         "command": "kusion.compile",
-        "title": "Kusion: Compile"
+        "category": "Kusion",
+        "title": "Compile"
       },
       {
         "command": "kusion.apply",
-        "title": "Kusion: Preview Live Diff and Apply"
+        "category": "Kusion",
+        "title": "Preview Live Diff and Apply"
       },
       {
         "command": "kusion.createProject",
-        "title": "Kusion: Create Kusion Project by Binding Application with Infra Code"
+        "category": "Kusion",
+        "title": "Create Kusion Project by Binding Application with Infra Code"
       }
     ],
     "menus": {
