@@ -16,9 +16,12 @@ export async function showDataPreview(dataPreviewSettings: ShowDataPreviewSettin
     var locked = !! dataPreviewSettings.locked;
     const resourceColumn = (vscode.window.activeTextEditor && vscode.window.activeTextEditor.viewColumn) || vscode.ViewColumn.One;
     var previewColumn = dataPreviewSettings.sideBySide ? vscode.ViewColumn.Beside : resourceColumn;
+    const root = await util.kclWorkspaceRoot(resource);
+    const stackUri = uri.Utils.dirname(resource);
+    const stackFullName = await util.getStackFullName(stackUri, root);
 	const webview = vscode.window.createWebviewPanel(
         viewType, 
-        await getViewTitle(resource, locked), 
+        await getViewTitle(stackFullName, locked), 
         previewColumn, 
         { enableFindWidget: true, }
     );
@@ -30,7 +33,7 @@ export async function showDataPreview(dataPreviewSettings: ShowDataPreviewSettin
         };
         webview.iconPath = iconPath;
     }
-    setCompiledData(resource, (data: string)=> {
+    setCompiledData(stackUri, (data: string)=> {
         const html = `<!DOCTYPE html>
 <html lang="en">
     <head>
@@ -52,11 +55,10 @@ ${data}</code>
     });
 }
 
-async function getViewTitle(resource: vscode.Uri, locked: boolean): Promise<string> {
-    const resourceLabel = await util.getStackFullName(uri.Utils.dirname(resource));
+async function getViewTitle(stackLabel: string, locked: boolean,): Promise<string> {
     return locked
-        ? `[Preview] ${resourceLabel}`
-        : `Preview ${resourceLabel}`;
+        ? `[Preview] ${stackLabel}`
+        : `Preview ${stackLabel}`;
 }
 
 interface ShowDataPreviewSettings {
@@ -64,21 +66,13 @@ interface ShowDataPreviewSettings {
 	readonly locked?: boolean;
 }
 
-function setCompiledData(resource: vscode.Uri, setToWebview: (data: string)=> void): void {
-    const workdir = uri.Utils.dirname(resource);
-    child_process.exec(`kusion compile -w ${workdir.fsPath}`, (err, stdout, stderr)=> {
+function setCompiledData(stackUri: vscode.Uri, setToWebview: (data: string)=> void): void {
+    const command = `kcl -Y ${util.settingsPath('')} ${util.kclYamlPath('')}`;
+    child_process.exec(command, { cwd: stackUri.path }, (err, stdout, stderr)=> {
         if (err || stderr){
-            // todo: when kusion compile failed, the message should be in stderr, not stdout.
             setToWebview(`Stack Compile Failed, Stderr:\n${stderr}`);
             return;
         }
-        const goldenPath = vscode.Uri.joinPath(workdir, "ci-test", "stdout.golden.yaml").fsPath;
-        try {
-            setToWebview(fs.readFileSync(goldenPath, "utf-8"));
-            return;
-        } catch (error) {
-            setToWebview(`Stack Compile Failed, Golden File Not Found: ${goldenPath}`);
-            return;
-        }
+        setToWebview(stdout);
     });
 }
