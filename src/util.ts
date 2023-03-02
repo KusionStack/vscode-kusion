@@ -9,14 +9,16 @@ export function setContextValue(key: string, value: any): Thenable<void> {
     return vscode.commands.executeCommand("setContext", key, value);
 }
 
-export async function getStackFullName(path: vscode.Uri | string) : Promise<string> {
-    const currentKclWorkspaceRoot = await kclWorkspaceRoot(path);
-    if (currentKclWorkspaceRoot === undefined) {
+export async function getStackFullName(path: vscode.Uri | string, root: vscode.Uri | undefined) : Promise<string> {
+    if (root === undefined) {
+        root = await kclWorkspaceRoot(path);
+    }
+    if (root === undefined) {
         // no KCL workspace root found, use stack's absolute file path
         return path instanceof vscode.Uri ? path.fsPath: path;
     }
     const p = require('path');
-    return p.relative(currentKclWorkspaceRoot.path, path instanceof vscode.Uri ? path.path: path);
+    return p.relative(root.path, path instanceof vscode.Uri ? path.path: path);
 }
 
 export async function kclWorkspaceRoot(path: vscode.Uri | string): Promise<vscode.Uri | undefined> {
@@ -43,3 +45,13 @@ export function inKusionStack(currentUri: vscode.Uri): boolean {
     const stackFilePath = vscode.Uri.joinPath(workdir, "stack.yaml");
     return fs.existsSync(stackFilePath.fsPath);
 }
+
+export const settingsPath = (stackPath: string)=>{
+    const p = require('path');
+    return p.join(stackPath, 'ci-test', 'settings.yaml');
+};
+
+export const kclYamlPath = (stackPath: string)=>{
+    const p = require('path');
+    return p.join(stackPath, 'kcl.yaml');
+};
