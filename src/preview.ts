@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import * as uri from 'vscode-uri';
 import * as child_process from 'child_process';
 import * as util from './util';
+import * as shiki from 'shiki';
 
 const viewType = 'kusion.dataPreview';
 
@@ -10,6 +11,7 @@ export function showDataPreview(dataPreviewSettings: ShowDataPreviewSettings) {
     if (resource === undefined || !util.inKusionStackCheck(resource)) {
         return;
     }
+    
     var locked = !! dataPreviewSettings.locked;
     const resourceColumn = (vscode.window.activeTextEditor && vscode.window.activeTextEditor.viewColumn) || vscode.ViewColumn.One;
     var previewColumn = dataPreviewSettings.sideBySide ? vscode.ViewColumn.Beside : resourceColumn;
@@ -30,26 +32,25 @@ export function showDataPreview(dataPreviewSettings: ShowDataPreviewSettings) {
         };
         webview.iconPath = iconPath;
     }
+
     setCompiledData(stackUri, (data: string)=> {
-        const html = `<!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/dark.min.css">
-        </head>
-<body>
-    <pre>
-        <code class="language-yaml">
-${data}</code>
-        </pre>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
-    <script>
-        hljs.highlightAll();
-    </script>
-</body>
-</html>`;
-    webview.webview.html = html;
+        shiki.getHighlighter({
+            theme: vscode.window.activeColorTheme.kind === 1 ? 'min-light' : 'min-dark'
+        }).then((highlighter) => {
+            const codeBlock = highlighter.codeToHtml(`${data}`, { lang: 'yaml' });
+            const html = `<!DOCTYPE html><html lang="en"><body>${codeBlock}</body></html>`;
+            webview.webview.html = html;
+        });
+        
     });
+    // vscode.window.onDidChangeActiveColorTheme( () => {
+    //     //create an empty webview
+    //     myEmptyWebview.webview.onDidReceiveMessage((colors)=>{
+    //         //do something with the css root colors
+    //         console.log(colors);
+    //         myEmptyWebview.dispose();//dispose this webview as we are not using it.
+    //     });
+    // });
 }
 
 function getViewTitle(stackLabel: string, locked: boolean,): string {
