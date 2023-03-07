@@ -103,11 +103,9 @@ function checkMinikueReady(startMinikube: ()=> void, afterReady: ()=>void):void 
     });
 }
 
-export function notifySvc(stackPath: string) {
-    const workspaceRoot = vscode.workspace.workspaceFolders![0]; // safe, see extension.ts activate()
-    const stackRelative = path.relative(workspaceRoot.uri.fsPath, stackPath);
+export function notifySvc(kclWorkspaceRoot: vscode.Uri|undefined, stack: vscode.Uri) {
     const projectPath = path.join(quickstartAppops, quickstartProject);
-    if (!stackRelative.startsWith(projectPath)) {
+    if (kclWorkspaceRoot === undefined && stack.path.startsWith(projectPath)) {
         // only check and notify svc detection in guestbook project
         return;
     }
@@ -162,7 +160,11 @@ export function notifySvc(stackPath: string) {
             portForward();
         });
     }
-    waitForServiceReady(afterSvcPodReady);
+    util.getStackFullName(stack, kclWorkspaceRoot).then(
+        (stackName: string) => {
+            waitForServiceReady(afterSvcPodReady);
+        }
+    );
 }
 
 

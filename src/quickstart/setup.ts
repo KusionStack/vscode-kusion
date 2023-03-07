@@ -18,8 +18,8 @@ export function canApply(): boolean {
     }
 }
 
-export function checkAndNotifySvc(stackPath: string) {
+export function checkAndNotifySvc(kclWorkspaceRoot: vscode.Uri|undefined, stack: vscode.Uri) {
     if (KUSION_QUICK_START) {
-        minikube.notifySvc(stackPath);
+        minikube.notifySvc(kclWorkspaceRoot, stack);
     }
 }

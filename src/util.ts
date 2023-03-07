@@ -4,6 +4,10 @@ import * as fs from 'fs';
 
 const kclModFile = 'kcl.mod';
 
+export function activeTextEditorDoc(): vscode.TextDocument | undefined {
+    return vscode.window.activeTextEditor?.document;
+}
+
 /** Sets ['when'](https://code.visualstudio.com/docs/getstarted/keybindings#_when-clause-contexts) clause contexts */
 export function setContextValue(key: string, value: any): Thenable<void> {
     return vscode.commands.executeCommand("setContext", key, value);
@@ -44,6 +48,14 @@ export function inKusionStack(currentUri: vscode.Uri): boolean {
     const workdir = uri.Utils.dirname(currentUri);
     const stackFilePath = vscode.Uri.joinPath(workdir, "stack.yaml");
     return fs.existsSync(stackFilePath.fsPath);
+}
+
+export function inKusionStackCheck(activeEdior: vscode.Uri|undefined): boolean {
+    if (activeEdior === undefined || !inKusionStack(activeEdior)) {
+        vscode.window.showWarningMessage(`Not in a Kusion Stack: ${activeEdior?activeEdior.path:"No Active Editor Found"}`);
+        return false;
+    }
+    return true;
 }
 
 export const settingsPath = (stackPath: string)=>{

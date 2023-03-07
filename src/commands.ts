@@ -3,50 +3,33 @@ import * as tasks from './tasks';
 import * as quickstart from './quickstart/setup';
 import * as dataPreview from './preview';
 import * as util from './util';
+import * as uri from 'vscode-uri';
 
-export function createTask(taskName: string, stackPath: string): vscode.Task|undefined {
-    const definition: tasks.KusionTaskDefinition = {
-        task: taskName,
-        type: 'kusion'
-    };
-
+export function createAndRunTask(taskName: string, kusionWorkspace: vscode.Uri|undefined, stack: vscode.Uri) {
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
     const target = vscode.workspace.workspaceFolders![0]; // safe, see extension.ts activate()
-    const kusionTask = tasks.buildKusionTask(
-        definition,
+    tasks.buildKusionTask(
         target,
         taskName,
-        stackPath
-    );
-    if (!kusionTask) {
-        return undefined;
-    }
-    // task.presentationOptions.showReuseMessage=false;
-    // task.presentationOptions.panel = vscode.TaskPanelKind.New;
-    kusionTask.group = vscode.TaskGroup.Build;
-    kusionTask.presentationOptions.clear = true;
-    kusionTask.presentationOptions.focus = true;
-    kusionTask.presentationOptions.reveal = vscode.TaskRevealKind.Always;
-    return kusionTask;
+        stack,
+        kusionWorkspace
+    ).then((task)=>{
+        if (!task) {
+            return undefined;
+        }
+        vscode.tasks.executeTask(task);
+    });
 }
 
-function kusionCommandRun(commandName: string): void {
-    const fileName = tasks.activeDocumentPath();
-    if (!fileName) {
+async function kusionCommandRun(commandName: string): Promise<void> {
+    var resource : vscode.Uri | undefined = util.activeTextEditorDoc()?.uri;
+    if (resource === undefined || !util.inKusionStackCheck(resource)) {
         return;
     }
-    const stackPath = tasks.getStackPath(fileName);
-    if (!stackPath) {
-        vscode.window.showInformationMessage("you are currently not in a kusion stack");
-        return ;
-    }
-
-    const task = createTask(commandName, stackPath);
-    if (!task) {
-        return;
-    }
-    vscode.tasks.executeTask(task);
-    quickstart.checkAndNotifySvc(stackPath);
+    const root = await util.kclWorkspaceRoot(resource);
+    const stackUri = uri.Utils.dirname(resource);
+    createAndRunTask(commandName, root, stackUri);
+    quickstart.checkAndNotifySvc(root, stackUri);
 }
 
 export function kusionCompile() : void {
