@@ -55,3 +55,12 @@ export const kclYamlPath = (stackPath: string)=>{
     const p = require('path');
     return p.join(stackPath, 'kcl.yaml');
 };
+
+export function randomNumBetween(pMin: number, pMax: number) {
+    pMin = Math.round(pMin);
+    pMax = Math.round(pMax);
+    if (pMax < pMin) {
+        let t = pMin; pMin = pMax; pMax = t;
+    }
+    return Math.floor(Math.random() * (pMax+1 - pMin) + pMin);
+}
