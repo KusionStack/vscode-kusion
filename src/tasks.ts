@@ -5,6 +5,7 @@
 import * as path from 'path';
 import * as fs from 'fs';
 import * as vscode from 'vscode';
+import * as util from './util';
 
 export class KusionTaskProvider implements vscode.TaskProvider {
 	static kusionType = 'kusion';
@@ -49,6 +50,8 @@ async function getKusionTasks(): Promise<vscode.Task[]> {
     if (!fileName) {
         return result;
     }
+
+
 
     let theActiveWorkspaceFolder: vscode.WorkspaceFolder | undefined = undefined;
 
@@ -119,7 +122,7 @@ export const compileSuccessMsg = (stackPath: string) => {
 };
 
 
-export const kusionCommands = new Map<string,  (stackPath:string) => string> ([
+export const kusionCommands = new Map<string, (stackPath:string) => string> ([
     [
         'compile', 
         (workdir: string) => {
@@ -135,7 +138,7 @@ export const kusionCommands = new Map<string,  (stackPath:string) => string> ([
 ]);
 
 
-export function buildKusionTask(definition: KusionTaskDefinition, scope: vscode.WorkspaceFolder | vscode.TaskScope.Global | vscode.TaskScope.Workspace, taskName: string, stackPath: string): vscode.Task|undefined {
+export async function buildKusionTask(scope: vscode.WorkspaceFolder | vscode.TaskScope.Global | vscode.TaskScope.Workspace, taskName: string, stackUri: vscode.Uri, kclWorkspaceRoot: vscode.Uri | undefined): Promise<vscode.Task | undefined> {
     const taskScript = kusionCommands.get(taskName);
     if (!taskScript) {
         return undefined;
@@ -144,5 +147,18 @@ export function buildKusionTask(definition: KusionTaskDefinition, scope: vscode.
         type: 'kusion',
         task: taskName
     };
-    return new vscode.Task(kind, scope, taskName, 'kusion', new vscode.ShellExecution(taskScript(stackPath)));
+
+    const shellExecutionOptions = kclWorkspaceRoot === undefined ? {} :{
+        cwd: kclWorkspaceRoot.path
+    };
+
+    const stackPath = kclWorkspaceRoot === undefined ? stackUri.path : await util.getStackFullName(stackUri, kclWorkspaceRoot);
+    const kusionTask = new vscode.Task(kind, scope, taskName, 'kusion', new vscode.ShellExecution(taskScript(stackPath), shellExecutionOptions));
+    // task.presentationOptions.showReuseMessage=false;
+    // task.presentationOptions.panel = vscode.TaskPanelKind.New;
+    kusionTask.group = vscode.TaskGroup.Build;
+    kusionTask.presentationOptions.clear = true;
+    kusionTask.presentationOptions.focus = true;
+    kusionTask.presentationOptions.reveal = vscode.TaskRevealKind.Always;
+    return kusionTask;
 }

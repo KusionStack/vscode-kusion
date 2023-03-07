@@ -1,18 +1,15 @@
 import * as vscode from 'vscode';
 import * as uri from 'vscode-uri';
-import * as fs from 'fs';
 import * as child_process from 'child_process';
 import * as util from './util';
 
 const viewType = 'kusion.dataPreview';
 
 export async function showDataPreview(dataPreviewSettings: ShowDataPreviewSettings): Promise<void> {
-    var resource : vscode.Uri | undefined = vscode.window.activeTextEditor?.document.uri;
-    if (resource === undefined || !util.inKusionStack(resource)) {
-        vscode.window.showWarningMessage(`Not in a Kusion Stack: ${resource?resource.path:"No Active Editor Found"}`);
+    var resource : vscode.Uri | undefined = util.activeTextEditorDoc()?.uri;
+    if (resource === undefined || !util.inKusionStackCheck(resource)) {
         return;
     }
-
     var locked = !! dataPreviewSettings.locked;
     const resourceColumn = (vscode.window.activeTextEditor && vscode.window.activeTextEditor.viewColumn) || vscode.ViewColumn.One;
     var previewColumn = dataPreviewSettings.sideBySide ? vscode.ViewColumn.Beside : resourceColumn;
