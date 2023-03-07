@@ -96,6 +96,11 @@
         "title": "Compile"
       },
       {
+        "command": "kusion.destroy",
+        "category": "Kusion",
+        "title": "Destroy"
+      },
+      {
         "command": "kusion.apply",
         "category": "Kusion",
         "title": "Preview Live Diff and Apply"
@@ -123,6 +128,11 @@
         {
           "command": "kusion.apply",
           "group": "Kusion group@2",
+          "when": "inKusionProject"
+        },
+        {
+          "command": "kusion.destroy",
+          "group": "Kusion group@3",
           "when": "inKusionProject"
         }
       ]
