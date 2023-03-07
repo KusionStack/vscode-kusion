@@ -134,6 +134,12 @@ export const kusionCommands = new Map<string, (stackPath:string) => string> ([
         (workdir: string) => {
             return `kusion apply -w ${workdir} --watch`;
         },
+    ],
+    [
+        'destroy',
+        (workdir: string) => {
+            return `kusion destroy -w ${workdir}`;
+        }
     ]
 ]);
 

@@ -10,7 +10,7 @@ export function setup() {
 	}
 }
 
-export function canApply(): boolean {
+export function canApplyOrDestroy(): boolean {
     if (KUSION_QUICK_START) {
         return minikube.checkMinikubeRunning();
     } else {

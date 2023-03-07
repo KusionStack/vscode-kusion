@@ -28,8 +28,9 @@ export async function activate(context: vscode.ExtensionContext) {
 	const kusionDataPreviewToSide = vscode.commands.registerCommand('kusion.showPreviewToSide', commands.kusionShowDataPreviewToSideCommand);
 	const kusionCompile = vscode.commands.registerCommand('kusion.compile', commands.kusionCompile);
 	const kusionApply = vscode.commands.registerCommand('kusion.apply', commands.kusionApply);
+	const kusionDestroy = vscode.commands.registerCommand('kusion.destroy', commands.kusionDestroy);
 	const createKusionProject = vscode.commands.registerCommand('kusion.createProject', () => {vscode.window.showWarningMessage("not implemented yet.");});
-	context.subscriptions.push(kusionCompile, kusionApply, kusionDataPreview, kusionDataPreviewToSide);
+	context.subscriptions.push(kusionCompile, kusionApply, kusionDestroy, kusionDataPreview, kusionDataPreviewToSide);
 	// todo how to set context when active editor switch
 	await util.setContextValue(KUSION_PROJECT_CONTEXT_NAME, true);
 	quickstart.setup();

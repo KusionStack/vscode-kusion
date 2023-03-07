@@ -29,7 +29,9 @@ async function kusionCommandRun(commandName: string): Promise<void> {
     const root = await util.kclWorkspaceRoot(resource);
     const stackUri = uri.Utils.dirname(resource);
     createAndRunTask(commandName, root, stackUri);
-    quickstart.checkAndNotifySvc(root, stackUri);
+    if (commandName === 'apply') {
+        quickstart.checkAndNotifySvc(root, stackUri);
+    }
 }
 
 export function kusionCompile() : void {
@@ -37,10 +39,18 @@ export function kusionCompile() : void {
 }
 
 export function kusionApply() : void {
-    if (!quickstart.canApply()) {
+    if (!quickstart.canApplyOrDestroy()) {
         vscode.window.showWarningMessage("Minikube not ready, please wait for the minikube to start");
     } else {
         kusionCommandRun('apply');
+    }
+}
+
+export function kusionDestroy(): void {
+    if (!quickstart.canApplyOrDestroy()) {
+        vscode.window.showWarningMessage("Minikube not ready, please wait for the minikube to start");
+    } else {
+        kusionCommandRun('destroy');
     }
 }
 
