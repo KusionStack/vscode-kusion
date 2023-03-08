@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import * as minikube from './minikube';
+import * as stack from '../stack';
 
 export const KUSION_QUICK_START = process.env.KUSION_QUICK_START === 'true';
 
@@ -18,8 +19,8 @@ export function canApplyOrDestroy(): boolean {
     }
 }
 
-export function checkAndNotifySvc(kclWorkspaceRoot: vscode.Uri|undefined, stack: vscode.Uri) {
+export function checkAndNotifySvc(stackObj: stack.Stack) {
     if (KUSION_QUICK_START) {
-        minikube.notifySvc(kclWorkspaceRoot, stack);
+        minikube.notifySvc(stackObj);
     }
 }

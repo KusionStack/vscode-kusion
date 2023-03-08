@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import * as path from 'path';
 import * as child_process from 'child_process';
 import * as util from '../util';
+import * as stack from '../stack';
 
 var minikubeRunning = false;
 var minikubeStarting = false;
@@ -103,9 +104,9 @@ function checkMinikueReady(startMinikube: ()=> void, afterReady: ()=>void):void 
     });
 }
 
-export function notifySvc(kclWorkspaceRoot: vscode.Uri|undefined, stack: vscode.Uri) {
+export function notifySvc(stackObj: stack.Stack) {
     const projectPath = path.join(quickstartAppops, quickstartProject);
-    if (kclWorkspaceRoot === undefined && stack.path.startsWith(projectPath)) {
+    if (!stackObj.name.startsWith(projectPath)) {
         // only check and notify svc detection in guestbook project
         return;
     }
@@ -160,11 +161,7 @@ export function notifySvc(kclWorkspaceRoot: vscode.Uri|undefined, stack: vscode.
             portForward();
         });
     }
-    util.getStackFullName(stack, kclWorkspaceRoot).then(
-        (stackName: string) => {
-            waitForServiceReady(afterSvcPodReady);
-        }
-    );
+    waitForServiceReady(afterSvcPodReady);
 }
 
 

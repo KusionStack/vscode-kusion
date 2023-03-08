@@ -13,9 +13,9 @@ export function setContextValue(key: string, value: any): Thenable<void> {
     return vscode.commands.executeCommand("setContext", key, value);
 }
 
-export async function getStackFullName(path: vscode.Uri | string, root: vscode.Uri | undefined) : Promise<string> {
+export function getStackFullName(path: vscode.Uri | string, root: vscode.Uri | undefined) : string {
     if (root === undefined) {
-        root = await kclWorkspaceRoot(path);
+        root = kclWorkspaceRoot(path);
     }
     if (root === undefined) {
         // no KCL workspace root found, use stack's absolute file path
@@ -25,19 +25,29 @@ export async function getStackFullName(path: vscode.Uri | string, root: vscode.U
     return p.relative(root.path, path instanceof vscode.Uri ? path.path: path);
 }
 
-export async function kclWorkspaceRoot(path: vscode.Uri | string): Promise<vscode.Uri | undefined> {
+export function getProjectFullName(path: vscode.Uri | string, root: vscode.Uri | undefined) : string {
+    if (root === undefined) {
+        root = kclWorkspaceRoot(path);
+    }
+    if (root === undefined) {
+        // no KCL workspace root found, use stack's absolute file path
+        return path instanceof vscode.Uri ? path.fsPath: path;
+    }
+    const p = require('path');
+    return p.relative(root.path, path instanceof vscode.Uri ? path.path: path);
+}
+
+export function kclWorkspaceRoot(path: vscode.Uri | string): vscode.Uri | undefined {
     var fromUri = path instanceof vscode.Uri ? path: vscode.Uri.file(path);
     while (true) {
-        try {
-            const modPath = uri.Utils.joinPath(fromUri, kclModFile);
-            await vscode.workspace.fs.stat(modPath);
+        const modPath = uri.Utils.joinPath(fromUri, kclModFile);
+        if (fs.existsSync(modPath.path)) {
             return fromUri;
-        } catch {
-            if(fromUri.fsPath === '/') {
-                return undefined;
-            }
-            fromUri = uri.Utils.dirname(fromUri);
         }
+        if(fromUri.path === '/') {
+            return undefined;
+        }
+        fromUri = uri.Utils.dirname(fromUri);
     }
 }
 

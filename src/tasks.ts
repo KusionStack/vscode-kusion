@@ -6,6 +6,7 @@ import * as path from 'path';
 import * as fs from 'fs';
 import * as vscode from 'vscode';
 import * as util from './util';
+import * as stack from './stack';
 
 export class KusionTaskProvider implements vscode.TaskProvider {
 	static kusionType = 'kusion';
@@ -144,7 +145,7 @@ export const kusionCommands = new Map<string, (stackPath:string) => string> ([
 ]);
 
 
-export async function buildKusionTask(scope: vscode.WorkspaceFolder | vscode.TaskScope.Global | vscode.TaskScope.Workspace, taskName: string, stackUri: vscode.Uri, kclWorkspaceRoot: vscode.Uri | undefined): Promise<vscode.Task | undefined> {
+export function buildKusionTask(scope: vscode.WorkspaceFolder | vscode.TaskScope.Global | vscode.TaskScope.Workspace, taskName: string, stackObj: stack.Stack): vscode.Task | undefined {
     const taskScript = kusionCommands.get(taskName);
     if (!taskScript) {
         return undefined;
@@ -154,12 +155,11 @@ export async function buildKusionTask(scope: vscode.WorkspaceFolder | vscode.Tas
         task: taskName
     };
 
-    const shellExecutionOptions = kclWorkspaceRoot === undefined ? {} :{
-        cwd: kclWorkspaceRoot.path
+    const shellExecutionOptions = {
+        cwd: stackObj.kclWorkspaceRoot?.path
     };
 
-    const stackPath = kclWorkspaceRoot === undefined ? stackUri.path : await util.getStackFullName(stackUri, kclWorkspaceRoot);
-    const kusionTask = new vscode.Task(kind, scope, taskName, 'kusion', new vscode.ShellExecution(taskScript(stackPath), shellExecutionOptions));
+    const kusionTask = new vscode.Task(kind, scope, taskName, 'kusion', new vscode.ShellExecution(taskScript(stackObj.name), shellExecutionOptions));
     // task.presentationOptions.showReuseMessage=false;
     // task.presentationOptions.panel = vscode.TaskPanelKind.New;
     kusionTask.group = vscode.TaskGroup.Build;
