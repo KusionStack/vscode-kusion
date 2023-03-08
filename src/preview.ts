@@ -5,7 +5,7 @@ import * as util from './util';
 
 const viewType = 'kusion.dataPreview';
 
-export async function showDataPreview(dataPreviewSettings: ShowDataPreviewSettings): Promise<void> {
+export function showDataPreview(dataPreviewSettings: ShowDataPreviewSettings) {
     var resource : vscode.Uri | undefined = util.activeTextEditorDoc()?.uri;
     if (resource === undefined || !util.inKusionStackCheck(resource)) {
         return;
@@ -13,12 +13,12 @@ export async function showDataPreview(dataPreviewSettings: ShowDataPreviewSettin
     var locked = !! dataPreviewSettings.locked;
     const resourceColumn = (vscode.window.activeTextEditor && vscode.window.activeTextEditor.viewColumn) || vscode.ViewColumn.One;
     var previewColumn = dataPreviewSettings.sideBySide ? vscode.ViewColumn.Beside : resourceColumn;
-    const root = await util.kclWorkspaceRoot(resource);
+    const root = util.kclWorkspaceRoot(resource);
     const stackUri = uri.Utils.dirname(resource);
-    const stackFullName = await util.getStackFullName(stackUri, root);
+    const stackFullName = util.getStackFullName(stackUri, root);
 	const webview = vscode.window.createWebviewPanel(
         viewType, 
-        await getViewTitle(stackFullName, locked), 
+        getViewTitle(stackFullName, locked), 
         previewColumn, 
         { enableFindWidget: true, }
     );
@@ -52,7 +52,7 @@ ${data}</code>
     });
 }
 
-async function getViewTitle(stackLabel: string, locked: boolean,): Promise<string> {
+function getViewTitle(stackLabel: string, locked: boolean,): string {
     return locked
         ? `[Preview] ${stackLabel}`
         : `Preview ${stackLabel}`;
