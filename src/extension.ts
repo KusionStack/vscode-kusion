@@ -33,6 +33,13 @@ export async function activate(context: vscode.ExtensionContext) {
 	context.subscriptions.push(kusionCompile, kusionApply, kusionDestroy, kusionDataPreview, kusionDataPreviewToSide);
 	// todo how to set context when active editor switch
 	await util.setContextValue(KUSION_PROJECT_CONTEXT_NAME, true);
+	vscode.window.onDidChangeActiveTextEditor((editor) => {
+		util.setInKusionStackByUri(editor?.document.uri);
+	});
+	vscode.workspace.onDidOpenTextDocument((document)=>{
+		util.setInKusionStackByUri(document.uri);
+	});
+
 	quickstart.setup();
 }
 

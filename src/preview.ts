@@ -2,14 +2,16 @@ import * as vscode from 'vscode';
 import * as uri from 'vscode-uri';
 import * as child_process from 'child_process';
 import * as util from './util';
+import * as shiki from 'shiki';
 
 const viewType = 'kusion.dataPreview';
 
 export function showDataPreview(dataPreviewSettings: ShowDataPreviewSettings) {
-    var resource : vscode.Uri | undefined = util.activeTextEditorDoc()?.uri;
+    var resource : vscode.Uri | undefined = util.activeTextEditorDocument()?.uri;
     if (resource === undefined || !util.inKusionStackCheck(resource)) {
         return;
     }
+    
     var locked = !! dataPreviewSettings.locked;
     const resourceColumn = (vscode.window.activeTextEditor && vscode.window.activeTextEditor.viewColumn) || vscode.ViewColumn.One;
     var previewColumn = dataPreviewSettings.sideBySide ? vscode.ViewColumn.Beside : resourceColumn;
@@ -20,7 +22,7 @@ export function showDataPreview(dataPreviewSettings: ShowDataPreviewSettings) {
         viewType, 
         getViewTitle(stackFullName, locked), 
         previewColumn, 
-        { enableFindWidget: true, }
+        { enableFindWidget: true, enableScripts: true}
     );
     var extensionContext = vscode.extensions.getExtension("KusionStack.kusion");
     if (extensionContext?.extensionUri) {
@@ -30,26 +32,27 @@ export function showDataPreview(dataPreviewSettings: ShowDataPreviewSettings) {
         };
         webview.iconPath = iconPath;
     }
-    setCompiledData(stackUri, (data: string)=> {
-        const html = `<!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/dark.min.css">
-        </head>
-<body>
-    <pre>
-        <code class="language-yaml">
-${data}</code>
-        </pre>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
-    <script>
-        hljs.highlightAll();
-    </script>
-</body>
-</html>`;
-    webview.webview.html = html;
+    compileStackData(stackUri).then(async (data) => {
+        const darkHighlighter = await shiki.getHighlighter({
+            theme: 'min-dark'
+        });
+        const lightHighlighter = await shiki.getHighlighter({
+            theme: 'min-light'
+        });
+        const darkHtml = renderInShikiTheme(data, darkHighlighter);
+        const lightHtml = renderInShikiTheme(data, lightHighlighter);
+
+        webview.webview.html = vscode.window.activeColorTheme.kind in [1, 4] ? lightHtml : darkHtml;
+
+        vscode.window.onDidChangeActiveColorTheme( (theme) => {
+            webview.webview.html = theme.kind in [1, 4] ? lightHtml : darkHtml;
+        });
     });
+
+    function renderInShikiTheme(data: string, highlighter: shiki.Highlighter) {
+        const codeBlock = highlighter.codeToHtml(`${data}`, { lang: 'yaml' });
+        return `<!DOCTYPE html><html lang="en"><body>${codeBlock}</body></html>`;
+    }
 }
 
 function getViewTitle(stackLabel: string, locked: boolean,): string {
@@ -63,13 +66,14 @@ interface ShowDataPreviewSettings {
 	readonly locked?: boolean;
 }
 
-function setCompiledData(stackUri: vscode.Uri, setToWebview: (data: string)=> void): void {
+async function compileStackData(stackUri: vscode.Uri): Promise<string> {
     const command = `kcl -Y ${util.settingsPath('')} ${util.kclYamlPath('')}`;
-    child_process.exec(command, { cwd: stackUri.path }, (err, stdout, stderr)=> {
-        if (err || stderr){
-            setToWebview(`Stack Compile Failed, Stderr:\n${stderr}`);
-            return;
-        }
-        setToWebview(stdout);
+    return new Promise((resolve)=> {
+        child_process.exec(command, { cwd: stackUri.path }, (err, stdout, stderr)=> {
+            if (err || stderr){
+                resolve(`Stack Compile Failed, Stderr:\n${stderr}`);
+            }
+            resolve(stdout);
+        });
     });
 }
