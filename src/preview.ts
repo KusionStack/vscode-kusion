@@ -32,25 +32,23 @@ export function showDataPreview(dataPreviewSettings: ShowDataPreviewSettings) {
         };
         webview.iconPath = iconPath;
     }
+    compileStackData(stackUri).then((data) => {
+        vscode.window.onDidChangeActiveColorTheme( (activeColorTheme) => {
+            renderInShikiTheme(data, activeColorTheme, webview);
+        });
 
-    setCompiledData(stackUri, (data: string)=> {
+        renderInShikiTheme(data, vscode.window.activeColorTheme, webview);
+    });
+
+    function renderInShikiTheme(data: string, theme: vscode.ColorTheme, webview: vscode.WebviewPanel) {
         shiki.getHighlighter({
-            theme: vscode.window.activeColorTheme.kind === 1 ? 'min-light' : 'min-dark'
+            theme: (theme.kind === 1 || theme.kind === 4) ? 'min-light' : 'min-dark'
         }).then((highlighter) => {
             const codeBlock = highlighter.codeToHtml(`${data}`, { lang: 'yaml' });
             const html = `<!DOCTYPE html><html lang="en"><body>${codeBlock}</body></html>`;
             webview.webview.html = html;
         });
-        
-    });
-    // vscode.window.onDidChangeActiveColorTheme( () => {
-    //     //create an empty webview
-    //     myEmptyWebview.webview.onDidReceiveMessage((colors)=>{
-    //         //do something with the css root colors
-    //         console.log(colors);
-    //         myEmptyWebview.dispose();//dispose this webview as we are not using it.
-    //     });
-    // });
+    }
 }
 
 function getViewTitle(stackLabel: string, locked: boolean,): string {
@@ -64,13 +62,14 @@ interface ShowDataPreviewSettings {
 	readonly locked?: boolean;
 }
 
-function setCompiledData(stackUri: vscode.Uri, setToWebview: (data: string)=> void): void {
+async function compileStackData(stackUri: vscode.Uri): Promise<string> {
     const command = `kcl -Y ${util.settingsPath('')} ${util.kclYamlPath('')}`;
-    child_process.exec(command, { cwd: stackUri.path }, (err, stdout, stderr)=> {
-        if (err || stderr){
-            setToWebview(`Stack Compile Failed, Stderr:\n${stderr}`);
-            return;
-        }
-        setToWebview(stdout);
+    return new Promise((resolve)=> {
+        child_process.exec(command, { cwd: stackUri.path }, (err, stdout, stderr)=> {
+            if (err || stderr){
+                resolve(`Stack Compile Failed, Stderr:\n${stderr}`);
+            }
+            resolve(stdout);
+        });
     });
 }
