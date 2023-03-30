@@ -32,22 +32,26 @@ export function showDataPreview(dataPreviewSettings: ShowDataPreviewSettings) {
         };
         webview.iconPath = iconPath;
     }
-    compileStackData(stackUri).then((data) => {
-        vscode.window.onDidChangeActiveColorTheme( (activeColorTheme) => {
-            renderInShikiTheme(data, activeColorTheme, webview);
+    compileStackData(stackUri).then(async (data) => {
+        const darkHighlighter = await shiki.getHighlighter({
+            theme: 'min-dark'
         });
+        const lightHighlighter = await shiki.getHighlighter({
+            theme: 'min-light'
+        });
+        const darkHtml = renderInShikiTheme(data, darkHighlighter);
+        const lightHtml = renderInShikiTheme(data, lightHighlighter);
 
-        renderInShikiTheme(data, vscode.window.activeColorTheme, webview);
+        webview.webview.html = vscode.window.activeColorTheme.kind in [1, 4] ? lightHtml : darkHtml;
+
+        vscode.window.onDidChangeActiveColorTheme( (theme) => {
+            webview.webview.html = theme.kind in [1, 4] ? lightHtml : darkHtml;
+        });
     });
 
-    function renderInShikiTheme(data: string, theme: vscode.ColorTheme, webview: vscode.WebviewPanel) {
-        shiki.getHighlighter({
-            theme: (theme.kind === 1 || theme.kind === 4) ? 'min-light' : 'min-dark'
-        }).then((highlighter) => {
-            const codeBlock = highlighter.codeToHtml(`${data}`, { lang: 'yaml' });
-            const html = `<!DOCTYPE html><html lang="en"><body>${codeBlock}</body></html>`;
-            webview.webview.html = html;
-        });
+    function renderInShikiTheme(data: string, highlighter: shiki.Highlighter) {
+        const codeBlock = highlighter.codeToHtml(`${data}`, { lang: 'yaml' });
+        return `<!DOCTYPE html><html lang="en"><body>${codeBlock}</body></html>`;
     }
 }
 
