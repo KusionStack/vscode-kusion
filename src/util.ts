@@ -3,6 +3,7 @@ import * as uri from 'vscode-uri';
 import * as fs from 'fs';
 
 const kclModFile = 'kcl.mod';
+const ACTIVE_EDITOR_IN_KUSION_STACK = "inKusionStack";
 
 export function activeTextEditorDocument(): vscode.TextDocument | undefined {
     return vscode.window.activeTextEditor?.document;
@@ -11,6 +12,14 @@ export function activeTextEditorDocument(): vscode.TextDocument | undefined {
 /** Sets ['when'](https://code.visualstudio.com/docs/getstarted/keybindings#_when-clause-contexts) clause contexts */
 export function setContextValue(key: string, value: any): Thenable<void> {
     return vscode.commands.executeCommand("setContext", key, value);
+}
+
+export function setInKusionStackByUri(uri: vscode.Uri | undefined){
+    if (inKusionStack(uri)) {
+        setContextValue(ACTIVE_EDITOR_IN_KUSION_STACK, true);
+    } else {
+        setContextValue(ACTIVE_EDITOR_IN_KUSION_STACK, false);
+    }
 }
 
 export function getStackFullName(path: vscode.Uri | string, root: vscode.Uri | undefined) : string {

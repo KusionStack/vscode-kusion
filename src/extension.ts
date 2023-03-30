@@ -8,8 +8,6 @@ import * as quickstart from './quickstart/setup';
 
 let kusionTaskProvider: vscode.Disposable | undefined;
 const KUSION_PROJECT_CONTEXT_NAME = "inKusionProject";
-const ACTIVE_EDITOR_IN_KUSION_STACK = "inKusionStack";
-
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
@@ -35,12 +33,11 @@ export async function activate(context: vscode.ExtensionContext) {
 	context.subscriptions.push(kusionCompile, kusionApply, kusionDestroy, kusionDataPreview, kusionDataPreviewToSide);
 	// todo how to set context when active editor switch
 	await util.setContextValue(KUSION_PROJECT_CONTEXT_NAME, true);
+	vscode.window.onDidChangeActiveTextEditor((editor) => {
+		util.setInKusionStackByUri(editor?.document.uri);
+	});
 	vscode.workspace.onDidOpenTextDocument((document)=>{
-		if (util.inKusionStack(document.uri)) {
-			util.setContextValue(ACTIVE_EDITOR_IN_KUSION_STACK, true);
-		} else {
-			util.setContextValue(ACTIVE_EDITOR_IN_KUSION_STACK, false);
-		}
+		util.setInKusionStackByUri(document.uri);
 	});
 
 	quickstart.setup();
