@@ -115,7 +115,7 @@
       "editor/title": [
         {
           "command": "kusion.showPreviewToSide",
-          "when": "editorLangId == KCL",
+          "when": "editorLangId == KCL && inKusionStack",
           "group": "navigation"
         }
       ],

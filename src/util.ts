@@ -4,7 +4,7 @@ import * as fs from 'fs';
 
 const kclModFile = 'kcl.mod';
 
-export function activeTextEditorDoc(): vscode.TextDocument | undefined {
+export function activeTextEditorDocument(): vscode.TextDocument | undefined {
     return vscode.window.activeTextEditor?.document;
 }
 
@@ -51,7 +51,7 @@ export function kclWorkspaceRoot(path: vscode.Uri | string): vscode.Uri | undefi
     }
 }
 
-export function inKusionStack(currentUri: vscode.Uri): boolean {
+export function inKusionStack(currentUri: vscode.Uri | undefined): boolean {
     if (currentUri === undefined) {
         return false;
     }

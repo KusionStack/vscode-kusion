@@ -31,7 +31,7 @@ function kusionCommandRun(commandName: string, currentStack: stack.Stack|undefin
 }
 
 function kusionPreCheck(): stack.Stack | undefined {
-    var resource : vscode.Uri | undefined = util.activeTextEditorDoc()?.uri;
+    var resource : vscode.Uri | undefined = util.activeTextEditorDocument()?.uri;
     if (resource === undefined || !util.inKusionStackCheck(resource)) {
         return;
     }

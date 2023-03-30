@@ -7,7 +7,7 @@ import * as shiki from 'shiki';
 const viewType = 'kusion.dataPreview';
 
 export function showDataPreview(dataPreviewSettings: ShowDataPreviewSettings) {
-    var resource : vscode.Uri | undefined = util.activeTextEditorDoc()?.uri;
+    var resource : vscode.Uri | undefined = util.activeTextEditorDocument()?.uri;
     if (resource === undefined || !util.inKusionStackCheck(resource)) {
         return;
     }
@@ -22,7 +22,7 @@ export function showDataPreview(dataPreviewSettings: ShowDataPreviewSettings) {
         viewType, 
         getViewTitle(stackFullName, locked), 
         previewColumn, 
-        { enableFindWidget: true, }
+        { enableFindWidget: true, enableScripts: true}
     );
     var extensionContext = vscode.extensions.getExtension("KusionStack.kusion");
     if (extensionContext?.extensionUri) {
