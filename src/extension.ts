@@ -5,6 +5,7 @@ import * as kusion_task_provider from './tasks';
 import * as commands from "./commands";
 import * as util from './util';
 import * as quickstart from './quickstart/setup';
+import {ensureKusion} from './installer';
 
 let kusionTaskProvider: vscode.Disposable | undefined;
 const KUSION_PROJECT_CONTEXT_NAME = "inKusionProject";
@@ -15,6 +16,8 @@ export async function activate(context: vscode.ExtensionContext) {
 	// Use the console to output diagnostic information (console.log) and errors (console.error)
 	// This line of code will only be executed once when your extension is activated
 	console.log('Congratulations, your extension "kusion" is now active!');
+
+	ensureKusion();
 
 	// get workspaceRoot, if there's no opening workspace, ust resturn.
 	const workspaceRoot = (vscode.workspace.workspaceFolders && (vscode.workspace.workspaceFolders.length > 0))
