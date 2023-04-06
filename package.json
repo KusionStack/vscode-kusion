@@ -12,6 +12,9 @@
   "categories": [
     "Other"
   ],
+  "extensionDependencies": [
+    "kcl.kcl-vscode-extension"
+  ],
   "activationEvents": [
     "onLanguage:KCL"
   ],
