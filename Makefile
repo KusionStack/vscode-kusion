@@ -9,3 +9,8 @@ package:
 publish:
 	make package
 	vsce publish --baseImagesUrl https://github.com/KusionStack/vscode-kusion.git
+
+pre-publish:
+	make compile
+	vsce package --pre-release --baseImagesUrl https://github.com/KusionStack/vscode-kusion.git
+	vsce publish --pre-release --baseImagesUrl https://github.com/KusionStack/vscode-kusion.git
