@@ -3,7 +3,10 @@ import * as vscode from 'vscode';
 
 export const defaultKusionPath = shell.combinePath(shell.combinePath(shell.home(), '.kusion'), 'kusion');
 
-export function ensureKusion(): boolean {
+export function ensureKusion(kclOnly: boolean = false): boolean {
+    if (kclOnly && kclInstalled()) {
+        return true;
+    }
     if (kusionInstalled()) {
         return true;
     }
