@@ -126,17 +126,17 @@
         {
           "command": "kusion.compile",
           "group": "Kusion group@1",
-          "when": "inKusionProject"
+          "when": "editorLangId == KCL && inKusionStack"
         },
         {
           "command": "kusion.apply",
           "group": "Kusion group@2",
-          "when": "inKusionProject"
+          "when": "editorLangId == KCL && inKusionStack"
         },
         {
           "command": "kusion.destroy",
           "group": "Kusion group@3",
-          "when": "inKusionProject"
+          "when": "editorLangId == KCL && inKusionStack"
         }
       ]
     }
