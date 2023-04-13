@@ -5,6 +5,7 @@ import * as dataPreview from './preview';
 import * as util from './util';
 import * as uri from 'vscode-uri';
 import * as stack from './stack';
+import {ensureKusion} from './installer';
 
 export function createAndRunTask(taskName: string, stackObj: stack.Stack) {
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
@@ -41,10 +42,16 @@ function kusionPreCheck(): stack.Stack | undefined {
 }
 
 export function kusionCompile() : void {
+    if (!ensureKusion()) {
+        return;
+    }
     kusionCommandRun('compile', kusionPreCheck());
 }
 
 export function kusionApply() : void {
+    if (!ensureKusion()) {
+        return;
+    }
     if (!quickstart.canApplyOrDestroy()) {
         vscode.window.showWarningMessage("Minikube not ready, please wait for the minikube to start");
     } else {
@@ -53,6 +60,9 @@ export function kusionApply() : void {
 }
 
 export function kusionDestroy(): void {
+    if (!ensureKusion()) {
+        return;
+    }
     if (!quickstart.canApplyOrDestroy()) {
         vscode.window.showWarningMessage("Minikube not ready, please wait for the minikube to start");
     } else {

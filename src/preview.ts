@@ -3,10 +3,14 @@ import * as uri from 'vscode-uri';
 import * as child_process from 'child_process';
 import * as util from './util';
 import * as shiki from 'shiki';
+import {ensureKusion} from './installer';
 
 const viewType = 'kusion.dataPreview';
 
 export function showDataPreview(dataPreviewSettings: ShowDataPreviewSettings) {
+    if (!ensureKusion(true)) {
+        return;
+    }
     var resource : vscode.Uri | undefined = util.activeTextEditorDocument()?.uri;
     if (resource === undefined || !util.inKusionStackCheck(resource)) {
         return;
