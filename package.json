@@ -20,29 +20,6 @@
   ],
   "main": "./out/extension.js",
   "contributes": {
-    "views": {
-      "kusionExplorer": [
-        {
-          "id": "kusionProjects",
-          "name": "kusion projects"
-        }
-      ]
-    },
-    "viewsContainers": {
-      "activitybar": [
-        {
-          "id": "kusionExplorer",
-          "title": "Kusion Explorer",
-          "icon": "images/kusion_k.png"
-        }
-      ]
-    },
-    "viewsWelcome": [
-      {
-        "view": "kusionProjects",
-        "contents": "No Kusion projects found [learn more](https://kusionstack.io/docs/user_docs/concepts/konfig#project--stack).\n[Create Kusion Project](command:kusion.createProject)"
-      }
-    ],
     "taskDefinitions": [
       {
         "type": "kusion",
@@ -107,11 +84,6 @@
         "command": "kusion.apply",
         "category": "Kusion",
         "title": "Preview Live Diff and Apply"
-      },
-      {
-        "command": "kusion.createProject",
-        "category": "Kusion",
-        "title": "Create Kusion Project by Binding Application with Infra Code"
       }
     ],
     "menus": {
