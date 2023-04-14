@@ -45,7 +45,7 @@ class InstallTool {
 const installTools = [
     new InstallTool(
         'scoop',
-        ['scoop add bucket KusionStack https://github.com/KusionStack/scoop-bucket.git', 'scoop install KusionStack/kusion'],
+        ['scoop bucket add KusionStack https://github.com/KusionStack/scoop-bucket.git', 'scoop install KusionStack/kusion'],
         [Platform.Windows]
     ),
     new InstallTool(
