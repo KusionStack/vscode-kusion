@@ -9,7 +9,7 @@ Welcome to KusionStack's world for your cloud delivery! We hope this extension e
 **Tip: If you are using the Cloud IDE bundled with Kusion, the first two steps can be skipped!**
 
 -   **Step 1.** Install Kusion on your system.
--   **Step 2.** Install the Kusion extension for Visual Studio Code. This extension requires the VS Code 1.71+
+-   **Step 2.** Install the Kusion extension for Visual Studio Code. This extension requires the VS Code 1.68+
 -   **Step 3.** Begin your Kusion tour starting from [Kusion's quick start](https://kusionstack.io/docs/user_docs/getting-started/usecase).
 
 ## Features

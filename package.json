@@ -6,7 +6,7 @@
   "publisher": "KusionStack",
   "repository": "https://github.com/KusionStack/vscode-kusion",
   "engines": {
-    "vscode": "^1.71.0"
+    "vscode": "^1.68.0"
   },
   "icon": "images/kusion.png",
   "categories": [
