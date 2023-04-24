@@ -37,3 +37,10 @@ All notable changes to the "kusion" extension will be documented in this file.
 
 - Add the Kusion view container to the primary activity bar.
 - Support Stack output data preview.
+
+
+## [0.0.11] - 2023-4-24
+
+### Updated
+
+- downgrade the dependency version of the vscode engines to 1.68.0
