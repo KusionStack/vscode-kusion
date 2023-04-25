@@ -98,3 +98,41 @@ export function kusionShowDataPreviewCommand() : void {
 export function kusionShowDataPreviewToSideCommand() : void {
     dataPreview.showDataPreview({sideBySide: true, locked: true});
 }
+
+export function kusionHelp(): void {
+    const kusionQuick = 'Kusion Quick Start Guide';
+    const kclQuick = 'KCL Quick Start Guide';
+    const kusionFeedback = 'Feedback';
+    const kusionQuickUri = 'https://kusionstack.io/docs/user_docs/getting-started/';
+    const kclQuickUri = 'https://kcl-lang.io/docs/user_docs/getting-started/kcl-quick-start';
+    const kusionFeedbackUri = 'https://github.com/KusionStack/vscode-kusion/issues/new/choose';
+    vscode.window.showQuickPick([
+        {
+            label: kusionQuick,
+            description: 'Get started to deliver applications with Kusion'
+            
+        },
+        {
+            label: kclQuick,
+            description: 'Get started to write configurations with KCL'
+        },
+        {
+            label: kusionFeedback,
+            description: 'Provide your feedback to help improve the product'
+        }
+    ], {canPickMany: false, placeHolder: "Pick a guide to quick start your Kusion tour!"}).then((value)=> {
+        if (value) {
+            switch (value.label) {
+                case kusionQuick:
+                    vscode.env.openExternal(vscode.Uri.parse(kusionQuickUri));
+                    return;
+                case kclQuick:
+                    vscode.env.openExternal(vscode.Uri.parse(kclQuickUri));
+                    return;
+                case kusionFeedback:
+                    vscode.env.openExternal(vscode.Uri.parse(kusionFeedbackUri));
+                    return;
+            }
+        }
+    });
+}
