@@ -17,13 +17,9 @@ export async function activate(context: vscode.ExtensionContext) {
 	console.log('Congratulations, your extension "kusion" is now active!');
 
 	ensureKusion();
-
-	// get workspaceRoot, if there's no opening workspace, ust resturn.
+	// get workspaceRoot, if there's no opening workspace, just resturn.
 	const workspaceRoot = (vscode.workspace.workspaceFolders && (vscode.workspace.workspaceFolders.length > 0))
 		? vscode.workspace.workspaceFolders[0].uri.fsPath : undefined;
-	if (!workspaceRoot) {
-		return;
-	}
 
 	kusionTaskProvider = vscode.tasks.registerTaskProvider(kusion_task_provider.KusionTaskProvider.kusionType, new kusion_task_provider.KusionTaskProvider(workspaceRoot));
 	const kusionDataPreview = vscode.commands.registerCommand('kusion.showPreview', commands.kusionShowDataPreviewCommand);
@@ -32,8 +28,9 @@ export async function activate(context: vscode.ExtensionContext) {
 	const kusionApply = vscode.commands.registerCommand('kusion.apply', commands.kusionApply);
 	const kusionDestroy = vscode.commands.registerCommand('kusion.destroy', commands.kusionDestroy);
 	const kusionHelp = vscode.commands.registerCommand('kusion.help', commands.kusionHelp);
-	const createKusionProject = vscode.commands.registerCommand('kusion.createProject', () => {vscode.window.showWarningMessage("not implemented yet.");});
-	context.subscriptions.push(kusionCompile, kusionApply, kusionDestroy, kusionDataPreview, kusionDataPreviewToSide, kusionHelp, kusionHelp);
+	const kusionCreateProject = vscode.commands.registerCommand('kusion.createProject', () => { commands.kusionCreateProject(context); });
+	context.subscriptions.push(kusionCompile, kusionApply, kusionDestroy, kusionDataPreview, kusionDataPreviewToSide, kusionHelp, kusionHelp, kusionCreateProject);
+
 	// todo how to set context when active editor switch
 	vscode.window.onDidChangeActiveTextEditor((editor) => {
 		util.setInKusionStackByUri(editor?.document.uri);
