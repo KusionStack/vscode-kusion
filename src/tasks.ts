@@ -5,19 +5,20 @@
 import * as path from 'path';
 import * as fs from 'fs';
 import * as vscode from 'vscode';
-import * as util from './util';
 import * as stack from './stack';
 
 export class KusionTaskProvider implements vscode.TaskProvider {
 	static kusionType = 'kusion';
 	private kusionPromise: Thenable<vscode.Task[]> | undefined = undefined;
 
-	constructor(workspaceRoot: string) {
-		const pattern = path.join(workspaceRoot, '**​/*.k');
-		const fileWatcher = vscode.workspace.createFileSystemWatcher(pattern);
-		fileWatcher.onDidChange(() => this.kusionPromise = undefined);
-		fileWatcher.onDidCreate(() => this.kusionPromise = undefined);
-		fileWatcher.onDidDelete(() => this.kusionPromise = undefined);
+	constructor(workspaceRoot: string|undefined) {
+        if (workspaceRoot) {
+            const pattern = path.join(workspaceRoot, '**​/*.k');
+            const fileWatcher = vscode.workspace.createFileSystemWatcher(pattern);
+            fileWatcher.onDidChange(() => this.kusionPromise = undefined);
+            fileWatcher.onDidCreate(() => this.kusionPromise = undefined);
+            fileWatcher.onDidDelete(() => this.kusionPromise = undefined);
+        }
 	}
 
 	public provideTasks(): Thenable<vscode.Task[]> | undefined {

@@ -6,6 +6,7 @@ import * as util from './util';
 import * as uri from 'vscode-uri';
 import * as stack from './stack';
 import {ensureKusion} from './installer';
+import * as createProject from './create-project';
 
 export function createAndRunTask(taskName: string, stackObj: stack.Stack) {
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
@@ -135,4 +136,8 @@ export function kusionHelp(): void {
             }
         }
     });
+}
+
+export function kusionCreateProject(context: vscode.ExtensionContext): void {
+    createProject.multiStepInput(context);
 }
