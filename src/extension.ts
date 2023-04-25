@@ -8,7 +8,6 @@ import * as quickstart from './quickstart/setup';
 import {ensureKusion} from './installer';
 
 let kusionTaskProvider: vscode.Disposable | undefined;
-const KUSION_PROJECT_CONTEXT_NAME = "inKusionProject";
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
@@ -32,10 +31,10 @@ export async function activate(context: vscode.ExtensionContext) {
 	const kusionCompile = vscode.commands.registerCommand('kusion.compile', commands.kusionCompile);
 	const kusionApply = vscode.commands.registerCommand('kusion.apply', commands.kusionApply);
 	const kusionDestroy = vscode.commands.registerCommand('kusion.destroy', commands.kusionDestroy);
+	const kusionHelp = vscode.commands.registerCommand('kusion.help', commands.kusionHelp);
 	const createKusionProject = vscode.commands.registerCommand('kusion.createProject', () => {vscode.window.showWarningMessage("not implemented yet.");});
-	context.subscriptions.push(kusionCompile, kusionApply, kusionDestroy, kusionDataPreview, kusionDataPreviewToSide);
+	context.subscriptions.push(kusionCompile, kusionApply, kusionDestroy, kusionDataPreview, kusionDataPreviewToSide, kusionHelp, kusionHelp);
 	// todo how to set context when active editor switch
-	await util.setContextValue(KUSION_PROJECT_CONTEXT_NAME, true);
 	vscode.window.onDidChangeActiveTextEditor((editor) => {
 		util.setInKusionStackByUri(editor?.document.uri);
 	});
@@ -51,5 +50,4 @@ export async function deactivate(): Promise<void> {
 	if (kusionTaskProvider) {
 		kusionTaskProvider.dispose();
 	}
-	await util.setContextValue(KUSION_PROJECT_CONTEXT_NAME, undefined);
 }

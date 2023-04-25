@@ -84,6 +84,11 @@
         "command": "kusion.apply",
         "category": "Kusion",
         "title": "Preview Live Diff and Apply"
+      },
+      {
+        "command": "kusion.help",
+        "category": "Kusion",
+        "title": "Help"
       }
     ],
     "menus": {
