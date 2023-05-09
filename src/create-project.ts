@@ -11,7 +11,7 @@ export async function multiStepInput(context: vscode.ExtensionContext) {
     const fromSchemaLabel = 'Create From Schema';
 	const archetypeForms: vscode.QuickPickItem[] = [fromTemplateLabel] // todo: show fromSchemaLabel
 		.map(label => ({ label }));
-	const templates = templateView.getTemplates(context.extensionUri);
+	const templates = templateView.getTemplates();
 
 	interface State {
 		title: string;
@@ -69,28 +69,32 @@ export async function multiStepInput(context: vscode.ExtensionContext) {
 	}
 
 	async function getAvailableTemplates(token?: vscode.CancellationToken): Promise<vscode.QuickPickItem[]> {
-		const result = [];
-		for (const templateName of templates.keys()) {
-			const t = await templates.get(templateName)!;
-			result.push(
-				{
-					label: templateName,
-					description: t.projectName,
-					detail: t.description
+		return new Promise<vscode.QuickPickItem[]>((resolve, reject) => {
+			templates.then(allTemplates => {
+				const result = [];
+				for (const templateName of allTemplates.keys()) {
+					const t = allTemplates.get(templateName)!;
+					result.push(
+						{
+							label: templateName,
+							description: t.projectName,
+							detail: t.description
+						}
+					);
 				}
-			);
-		}
-		return result;
+				resolve(result);
+			});
+		});
 	}
 
 	const state = await collectInputs();
 	switch (state.archetypeForm.label) {
 		case fromTemplateLabel:
-			const templateInfo = templates.get(state.template.label);
+			const templateInfo = (await templates).get(state.template.label);
 			if (!templateInfo) {
 				return;
 			}
-			templateView.CreateFromTemplatePanel.createOrShow(context.extensionUri, await templateInfo);
+			templateView.CreateFromTemplatePanel.createOrShow(context.extensionUri, templateInfo);
 			return;
 	}
 }
