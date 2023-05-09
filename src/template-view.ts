@@ -5,6 +5,7 @@ import { getNonce } from "./utilities/getNonce";
 import { getWebviewOptions } from './utilities/getWebviewOptions';
 
 export type InitTemplateData = {
+	name: string
 	projectName: string
 	description: string
 	quickstart: string
@@ -29,25 +30,29 @@ export enum KclType {
     int = 'int',
 }
 
-export async function loadTemplate(uri: vscode.Uri): Promise<InitTemplateData> {
-    const yamlData = await vscode.workspace.fs.readFile(uri);
-	return yaml.parse(yamlData.toString()) as InitTemplateData;
+export function getTemplates(): Promise<Map<string, InitTemplateData>> {
+	const templateRepo = "https://github.com/KusionStack/kusion-templates.git";
+	const command = `kusion init templates ${templateRepo} --online=true -o json`;
+	return new Promise<Map<string, InitTemplateData>>((resolve, reject) => {
+		child_process.exec(command, (err, stdout, stderr)=> {
+			if (stdout) {
+				const templates = JSON.parse(stdout) as InitTemplateData[];
+				if (templates) {
+					const map = templates.reduce((acc, t) => {
+						acc.set(t.name, t);
+						return acc;
+					}, new Map<string, InitTemplateData>());
+					resolve(map);
+				}
+			}
+			if (err || stderr){
+				if (!stderr.trim().endsWith("[WARN] install kclvm failed: error[E3M38]: No input KCL files or paths")) {
+					reject(stderr);
+				}
+			}
+		});
+	});
 }
-
-export function getTemplates(extensionUri: vscode.Uri): Map<string, Promise<InitTemplateData>> {
-	const map = templatePaths.reduce((acc, path) => {
-		acc.set(path, loadTemplate(vscode.Uri.joinPath(extensionUri, 'data', `${path}.yaml`)));
-		return acc;
-	  }, new Map<string, Promise<InitTemplateData>>());
-	return map;
-}
-
-const templatePaths = [
-    'code-city',
-    'deployment-multi-stack',
-	'deployment-single-stack',
-];
-
 
 function panelTitle(template: InitTemplateData): string {
 	return `Create From Template: ${template.projectName}`;
