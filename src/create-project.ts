@@ -71,17 +71,16 @@ export async function multiStepInput(context: vscode.ExtensionContext) {
 	async function getAvailableTemplates(token?: vscode.CancellationToken): Promise<vscode.QuickPickItem[]> {
 		return new Promise<vscode.QuickPickItem[]>((resolve, reject) => {
 			templates.then(allTemplates => {
-				const result = [];
-				for (const templateName of allTemplates.keys()) {
-					const t = allTemplates.get(templateName)!;
+				const result: vscode.QuickPickItem[] = [];
+				allTemplates.forEach((t, templateId)=>{
 					result.push(
 						{
-							label: templateName,
-							description: t.projectName,
+							label: t.name,
+							description: t.location,
 							detail: t.description
 						}
 					);
-				}
+				});
 				resolve(result);
 			});
 		});
@@ -90,7 +89,7 @@ export async function multiStepInput(context: vscode.ExtensionContext) {
 	const state = await collectInputs();
 	switch (state.archetypeForm.label) {
 		case fromTemplateLabel:
-			const templateInfo = (await templates).get(state.template.label);
+			const templateInfo = (await templates).get(templateView.templateUniqueId(state.template.label, state.template.description));
 			if (!templateInfo) {
 				return;
 			}
