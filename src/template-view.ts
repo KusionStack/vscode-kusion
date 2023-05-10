@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import * as child_process from 'child_process';
 import { getNonce } from "./utilities/getNonce";
 import { getWebviewOptions } from './utilities/getWebviewOptions';
+import * as util from './util';
 
 export type InitTemplateData = {
 	name: string
@@ -74,7 +75,7 @@ export function getTemplates(): Promise<Map<string, InitTemplateData>> {
 					outputChannel.show();
 					outputChannel.appendLine(`Failed to load templates from ${loc}:`);
 					errorMsgs.forEach((msg)=> {
-						outputChannel.appendLine(`\t${msg}`);
+						outputChannel.appendLine(`\t${util.stripAnsi(msg)}`);
 					});
 				}
 				count --;

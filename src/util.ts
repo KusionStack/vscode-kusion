@@ -95,3 +95,7 @@ export function randomNumBetween(pMin: number, pMax: number) {
     }
     return Math.floor(Math.random() * (pMax+1 - pMin) + pMin);
 }
+
+export function stripAnsi(from: string): string {
+	return from.replace(/[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]/g, ''); 
+}
