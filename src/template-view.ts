@@ -31,25 +31,57 @@ export enum KclType {
 }
 
 export function getTemplates(): Promise<Map<string, InitTemplateData>> {
-	const templateRepo = "https://github.com/KusionStack/kusion-templates.git";
-	const command = `kusion init templates ${templateRepo} --online=true -o json`;
+	const templateLocations = vscode.workspace.getConfiguration('kusion.templates').get('location') as string[];
+	if (!templateLocations || templateLocations.length === 0) {
+		return new Promise<Map<string, InitTemplateData>>((resolve, reject) => {
+			resolve(new Map<string, InitTemplateData>());
+		});
+	}
+	var count = templateLocations.length;
+	var allTemplates: InitTemplateData[] = [];
+	var outputChannel: vscode.OutputChannel = vscode.window.createOutputChannel("kusion");
+	
 	return new Promise<Map<string, InitTemplateData>>((resolve, reject) => {
-		child_process.exec(command, (err, stdout, stderr)=> {
-			if (stdout) {
-				const templates = JSON.parse(stdout) as InitTemplateData[];
-				if (templates) {
-					const map = templates.reduce((acc, t) => {
+		templateLocations.forEach((loc) => {
+			const parsedLoc = vscode.Uri.parse(loc);
+			const online = parsedLoc.scheme === "https";
+			const location = online ? loc : parsedLoc.path;
+			const command = `kusion init templates ${location} ${online ? "--online=true" : ""} -o json`;
+			var errorMsgs: string[] = [];
+			child_process.exec(command, (err, stdout, stderr)=> {
+				if (stdout) {
+					try {
+						const templates = JSON.parse(stdout) as InitTemplateData[];
+						if (templates) {
+							allTemplates.push(...templates);
+						}
+					} catch (error) {
+						errorMsgs.push(stdout);
+					}
+				}
+				if (err || stderr){
+					// todo: this error will be fixed in lated kusion
+					if (!stderr.trim().endsWith("[WARN] install kclvm failed: error[E3M38]: No input KCL files or paths")) {
+						errorMsgs.push(stderr);
+					}
+				}
+				if (errorMsgs.length !== 0) {
+					outputChannel.show();
+					outputChannel.appendLine(`Failed to load templates from ${loc}:`);
+					errorMsgs.forEach((msg)=> {
+						outputChannel.appendLine(`\t${msg}`);
+					});
+				}
+				count --;
+				if (count === 0) {
+					const map = allTemplates.reduce((acc, t) => {
 						acc.set(t.name, t);
 						return acc;
 					}, new Map<string, InitTemplateData>());
 					resolve(map);
 				}
-			}
-			if (err || stderr){
-				if (!stderr.trim().endsWith("[WARN] install kclvm failed: error[E3M38]: No input KCL files or paths")) {
-					reject(stderr);
-				}
-			}
+			});
+		
 		});
 	});
 }

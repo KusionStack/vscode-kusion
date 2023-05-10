@@ -20,6 +20,21 @@
   ],
   "main": "./out/extension.js",
   "contributes": {
+    "configuration": {
+      "title": "Kusion",
+      "properties": {
+        "kusion.templates.location": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "https://github.com/KusionStack/kusion-templates.git"
+          ],
+          "description": "Specifies the folder paths and the GitHub repositories containing Kusion Templates to use to init Kusion Project."
+        }
+      }
+    },
     "taskDefinitions": [
       {
         "type": "kusion",
