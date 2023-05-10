@@ -7,6 +7,11 @@ import * as templateView from './template-view';
  * This first part uses the helper class `MultiStepInput` that wraps the API for the multi-step case.
  */
 export async function multiStepInput(context: vscode.ExtensionContext) {
+	class TemplateButton implements vscode.QuickInputButton {
+		constructor(public iconPath: vscode.ThemeIcon, public tooltip: string) { }
+	}
+
+	const settingsButton = new TemplateButton(new vscode.ThemeIcon("gear"), 'Set Template Locations');
 	const fromTemplateLabel = 'Create From Template';
     const fromSchemaLabel = 'Create From Schema';
 	const archetypeForms: vscode.QuickPickItem[] = [fromTemplateLabel] // todo: show fromSchemaLabel
@@ -50,15 +55,21 @@ export async function multiStepInput(context: vscode.ExtensionContext) {
 	async function pickTemplate(input: MultiStepInput, state: Partial<State>) {
 		const templatePicks = await getAvailableTemplates(undefined /* TODO: token */);
 		// TODO: Remember currently active item when navigating back.
-		state.template = await input.showQuickPick({
+		const pick = await input.showQuickPick({
 			title,
 			step: 2,
 			totalSteps: 2,
-			placeholder: 'Pick a template',
 			items: templatePicks,
 			activeItem: state.template,
+			placeholder: 'Pick a template',
+			buttons: [settingsButton],
 			shouldResume: shouldResume
 		});
+		if (pick instanceof TemplateButton) {
+			vscode.commands.executeCommand('workbench.action.openSettings', 'kusion.templates');
+		} else {
+			state.template = pick;
+		}
 	}
 	
 	function shouldResume() {
