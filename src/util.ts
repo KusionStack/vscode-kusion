@@ -61,7 +61,7 @@ export function kclWorkspaceRoot(path: vscode.Uri | string): vscode.Uri | undefi
 }
 
 export function inKusionStack(currentUri: vscode.Uri | undefined): boolean {
-    if (currentUri === undefined) {
+    if (currentUri === undefined || currentUri.path === undefined) {
         return false;
     }
     const workdir = uri.Utils.dirname(currentUri);
