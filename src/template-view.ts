@@ -1,11 +1,11 @@
 import * as vscode from 'vscode';
 import * as child_process from 'child_process';
-import * as yaml from 'yaml';
 import { getNonce } from "./utilities/getNonce";
 import { getWebviewOptions } from './utilities/getWebviewOptions';
 
 export type InitTemplateData = {
 	name: string
+	location: string
 	projectName: string
 	description: string
 	quickstart: string
@@ -53,7 +53,8 @@ export function getTemplates(): Promise<Map<string, InitTemplateData>> {
 					try {
 						const templates = JSON.parse(stdout) as InitTemplateData[];
 						if (templates) {
-							allTemplates.push(...templates);
+							const withLocation = templates.map((t) => {t.location = location; return t;});
+							allTemplates.push(...withLocation);
 						}
 					} catch (error) {
 						errorMsgs.push(stdout);
@@ -75,7 +76,7 @@ export function getTemplates(): Promise<Map<string, InitTemplateData>> {
 				count --;
 				if (count === 0) {
 					const map = allTemplates.reduce((acc, t) => {
-						acc.set(t.name, t);
+						acc.set(templateUniqueId(t.name, t.location), t);
 						return acc;
 					}, new Map<string, InitTemplateData>());
 					resolve(map);
@@ -84,6 +85,10 @@ export function getTemplates(): Promise<Map<string, InitTemplateData>> {
 		
 		});
 	});
+}
+
+export function templateUniqueId(name: string, location: string|undefined): string {
+	return `${name}@${location}`;
 }
 
 function panelTitle(template: InitTemplateData): string {
