@@ -14,7 +14,7 @@ export async function multiStepInput(context: vscode.ExtensionContext) {
 	const settingsButton = new TemplateButton(new vscode.ThemeIcon("gear"), 'Set Template Locations');
 	const fromTemplateLabel = 'Create From Template';
     const fromSchemaLabel = 'Create From Schema';
-	const archetypeForms: vscode.QuickPickItem[] = [fromTemplateLabel] // todo: show fromSchemaLabel
+	const archetypeForms: vscode.QuickPickItem[] = [fromTemplateLabel]
 		.map(label => ({ label }));
 	const templates = templateView.getTemplates();
 
@@ -55,6 +55,9 @@ export async function multiStepInput(context: vscode.ExtensionContext) {
 	async function pickTemplate(input: MultiStepInput, state: Partial<State>) {
 		const templatePicks = await getAvailableTemplates(undefined /* TODO: token */);
 		// TODO: Remember currently active item when navigating back.
+		if (templatePicks.length === 0) {
+			return;
+		}
 		const pick = await input.showQuickPick({
 			title,
 			step: 2,
@@ -66,7 +69,7 @@ export async function multiStepInput(context: vscode.ExtensionContext) {
 			shouldResume: shouldResume
 		});
 		if (pick instanceof TemplateButton) {
-			vscode.commands.executeCommand('workbench.action.openSettings', 'kusion.templates');
+			templateView.goToTemplateSetting();
 		} else {
 			state.template = pick;
 		}
@@ -92,6 +95,14 @@ export async function multiStepInput(context: vscode.ExtensionContext) {
 						}
 					);
 				});
+				if (result.length === 0) {
+					const setLocation = 'Set Template Location';
+					vscode.window.showWarningMessage(`No template found. Please check template location setting`, ...[setLocation]).then((pick) => {
+						if (pick === setLocation) {
+							templateView.goToTemplateSetting();
+						}
+					});
+				}
 				resolve(result);
 			});
 		});

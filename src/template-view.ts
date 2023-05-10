@@ -30,6 +30,10 @@ export enum KclType {
     int = 'int',
 }
 
+export function goToTemplateSetting() {
+	vscode.commands.executeCommand('workbench.action.openSettings', 'kusion.templates');
+}
+
 export function getTemplates(): Promise<Map<string, InitTemplateData>> {
 	const templateLocations = vscode.workspace.getConfiguration('kusion.templates').get('location') as string[];
 	if (!templateLocations || templateLocations.length === 0) {
