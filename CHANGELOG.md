@@ -44,3 +44,10 @@ All notable changes to the "kusion" extension will be documented in this file.
 ### Updated
 
 - downgrade the dependency version of the vscode engines to 1.68.0
+
+## [0.0.13] - 2023-5-12
+
+### Added
+
+- support `Kusion: Create Kusion Project From Archetype` command to create a kusion project from template.
+- support `kusion.templates.location` settings to configure the locations to load kusion templates from.
