@@ -3,6 +3,7 @@ import * as child_process from 'child_process';
 import { getNonce } from "./utilities/getNonce";
 import { getWebviewOptions } from './utilities/getWebviewOptions';
 import * as util from './util';
+import * as output from './output';
 
 export type InitTemplateData = {
 	name: string
@@ -44,7 +45,6 @@ export function getTemplates(): Promise<Map<string, InitTemplateData>> {
 	}
 	var count = templateLocations.length;
 	var allTemplates: InitTemplateData[] = [];
-	var outputChannel: vscode.OutputChannel = vscode.window.createOutputChannel("kusion");
 	
 	return new Promise<Map<string, InitTemplateData>>((resolve, reject) => {
 		templateLocations.forEach((loc) => {
@@ -72,10 +72,10 @@ export function getTemplates(): Promise<Map<string, InitTemplateData>> {
 					}
 				}
 				if (errorMsgs.length !== 0) {
-					outputChannel.show();
-					outputChannel.appendLine(`Failed to load templates from ${loc}:`);
+					output.show();
+					output.appendLine(`Failed to load templates from ${loc}:`, false);
 					errorMsgs.forEach((msg)=> {
-						outputChannel.appendLine(`\t${util.stripAnsi(msg)}`);
+						output.appendLine(`\t${util.stripAnsi(msg)}`, true);
 					});
 				}
 				count --;
@@ -186,18 +186,30 @@ export class CreateFromTemplatePanel {
                             if (uris?.length === 1) {
                                 const targetFolder = uris[0];
                                 const projectUri = vscode.Uri.joinPath(targetFolder, projectName);
-                                const command = `kusion init --custom-params='${JSON.stringify(templateParams)}'`;
+								const online = this._template.location.startsWith('https');
+                                const command = `kusion init ${this._template.location} ${online?'--online':''} --custom-params='${JSON.stringify(templateParams)}' --template-name=${this._template.name}`;
                                 console.log(command);
-                                child_process.exec(command, (err, stdout, stderr)=> {
-                                    if (err || stderr){
-                                        vscode.window.showErrorMessage(`failed to init project: err: ${err}, stderr: ${stderr}`);
+                                child_process.exec(command, {cwd: targetFolder.path}, (err, stdout, stderr)=> {
+									this._panel.dispose();
+									if (err || stderr) {
+										output.appendLine('failed to init project:', false);
+										output.appendLine(stdout, true);
+										output.appendLine(stderr, true);
+										output.show();
                                         return;
                                     }
-                                    this._panel.dispose();
-									const openProject = 'Open Project';
+									output.appendLine(stdout, true);
+									const inWorkspace = (vscode.workspace.getWorkspaceFolder(projectUri));
+									const openProject = inWorkspace ? 'Reveal in the Explorer' : 'Open In New Window';
 									vscode.window.showInformationMessage(`Successfully Created Kusion Project ${projectName}`, ...[openProject]).then((option)=>{
 										if (option === openProject){
-											vscode.commands.executeCommand(`vscode.openFolder`, projectUri);
+											if (inWorkspace) {
+												// the project is generated to an opened workspace, just reveal it in the explorer
+												vscode.commands.executeCommand('revealInExplorer', projectUri);
+											} else {
+												// the project is generated outside the workspace, open it in the new window
+												vscode.commands.executeCommand(`vscode.openFolder`, projectUri, true);
+											}	
 										}
 									});
                                 });
