@@ -8,7 +8,7 @@ import {ensureKusion} from './installer';
 const viewType = 'kusion.dataPreview';
 
 export function showDataPreview(dataPreviewSettings: ShowDataPreviewSettings) {
-    if (!ensureKusion(true)) {
+    if (!ensureKusion(false, true)) {
         return;
     }
     var resource : vscode.Uri | undefined = util.activeTextEditorDocument()?.uri;
