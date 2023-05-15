@@ -7,6 +7,7 @@ import * as uri from 'vscode-uri';
 import * as stack from './stack';
 import {ensureKusion} from './installer';
 import * as createProject from './create-project';
+import * as liveDiff from './livediff';
 
 export function createAndRunTask(taskName: string, stackObj: stack.Stack) {
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
@@ -48,6 +49,21 @@ export function kusionCompile() : void {
     }
     kusionCommandRun('compile', kusionPreCheck());
 }
+
+export function kusionDiffPreview(context: vscode.ExtensionContext) : void {
+    if (!quickstart.canApplyOrDestroy()) {
+        vscode.window.showWarningMessage("Minikube not ready, please wait for the minikube to start");
+        return;
+    }
+
+    const currentStack = kusionPreCheck();
+    if (!currentStack) {
+        return;
+    }
+    
+    liveDiff.showDiff(context, currentStack);
+}
+
 
 export function kusionApply() : void {
     if (!ensureKusion()) {
