@@ -14,12 +14,12 @@ export function setContextValue(key: string, value: any): Thenable<void> {
     return vscode.commands.executeCommand("setContext", key, value);
 }
 
-export function setInKusionStackByUri(uri: vscode.Uri | undefined){
-    if (inKusionStack(uri)) {
-        setContextValue(ACTIVE_EDITOR_IN_KUSION_STACK, true);
-    } else {
-        setContextValue(ACTIVE_EDITOR_IN_KUSION_STACK, false);
-    }
+export function getContextValue(key: string): any {
+    return vscode.commands.executeCommand("getContext", key);
+}
+
+export function setInKusionStack(value: boolean): Thenable<void> {
+    return setContextValue(ACTIVE_EDITOR_IN_KUSION_STACK, value);
 }
 
 export function getStackFullName(path: vscode.Uri | string, root: vscode.Uri | undefined) : string {

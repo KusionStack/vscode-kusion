@@ -5,6 +5,8 @@ import * as kusion_task_provider from './tasks';
 import * as commands from "./commands";
 import * as util from './util';
 import * as quickstart from './quickstart/setup';
+import * as liveDiff from './livediff';
+import * as stack from './stack';
 import {ensureKusion} from './installer';
 
 let kusionTaskProvider: vscode.Disposable | undefined;
@@ -29,14 +31,17 @@ export async function activate(context: vscode.ExtensionContext) {
 	const kusionDestroy = vscode.commands.registerCommand('kusion.destroy', commands.kusionDestroy);
 	const kusionHelp = vscode.commands.registerCommand('kusion.help', commands.kusionHelp);
 	const kusionCreateProject = vscode.commands.registerCommand('kusion.createProject', () => { commands.kusionCreateProject(context); });
-	context.subscriptions.push(kusionCompile, kusionLiveDiff, kusionDestroy, kusionDataPreview, kusionDataPreviewToSide, kusionHelp, kusionHelp, kusionCreateProject);
+	const kusionConfirmApply = vscode.commands.registerCommand('kusion.confirmApply', ()=> { commands.kusionConfirmApply(context); });
+	context.subscriptions.push(kusionCompile, kusionLiveDiff, kusionDestroy, kusionDataPreview, kusionDataPreviewToSide, kusionHelp, kusionHelp, kusionCreateProject, kusionConfirmApply);
 
 	// todo how to set context when active editor switch
 	vscode.window.onDidChangeActiveTextEditor((editor) => {
-		util.setInKusionStackByUri(editor?.document.uri);
+		const inKusionStack = util.inKusionStack(editor?.document.uri);
+		util.setInKusionStack(inKusionStack);
+		liveDiff.updateKusionLiveDiffEditorStatus(editor);
 	});
 	vscode.workspace.onDidOpenTextDocument((document)=>{
-		util.setInKusionStackByUri(document.uri);
+		util.setInKusionStack(util.inKusionStack(document.uri));
 	});
 
 	quickstart.setup();

@@ -109,6 +109,18 @@
         "command": "kusion.createProject",
         "category": "Kusion",
         "title": "Create Kusion Project From Archetype"
+      },
+      {
+        "command": "kusion.gotoFile",
+        "category": "Kusion",
+        "title": "Go To Source File",
+        "icon": "$(go-to-file)"
+      },
+      {
+        "command": "kusion.confirmApply",
+        "category": "Kusion",
+        "title": "Confirm Apply",
+        "icon": "$(cloud-upload)"
       }
     ],
     "menus": {
@@ -116,6 +128,16 @@
         {
           "command": "kusion.showPreviewToSide",
           "when": "editorLangId == KCL && inKusionStack",
+          "group": "navigation"
+        },
+        {
+          "command": "kusion.gotoFile",
+          "when": "inKusionLiveDiff",
+          "group": "navigation"
+        },
+        {
+          "command": "kusion.confirmApply",
+          "when": "inKusionLiveDiff",
           "group": "navigation"
         }
       ],

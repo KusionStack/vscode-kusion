@@ -3,20 +3,20 @@ import * as vscode from 'vscode';
 
 export const defaultKusionPath = shell.combinePath(shell.combinePath(shell.home(), '.kusion'), 'kusion');
 
-export function ensureKusion(kclOnly: boolean = false): boolean {
-    if (kclOnly && kclInstalled()) {
-        return true;
+export function ensureKusion(checkKusion: boolean = true, checkKcl: boolean = false): boolean {
+    const hasKusion = kusionInstalled();
+    const hasKcl = kclInstalled();
+
+    if ((checkKusion && !hasKusion) || (checkKcl && !hasKcl)) {
+        const installKusion = 'Install Kusion & Kcl';
+        vscode.window.showErrorMessage(`Kusion or Kcl is not installed.`, installKusion).then((value) => {
+            if (value === installKusion) {
+                installDependencies();
+            }
+        });
+        return false;
     }
-    if (kusionInstalled()) {
-        return true;
-    }
-    const installKusion = 'Install Kusion';
-    vscode.window.showErrorMessage(`Kusion is not installed.`, installKusion).then((value) => {
-        if (value === installKusion) {
-            installDependencies();
-        }
-    });
-    return false;
+    return true;
 }
 
 export function installDependencies() {

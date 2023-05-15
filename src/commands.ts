@@ -33,24 +33,36 @@ function kusionCommandRun(commandName: string, currentStack: stack.Stack|undefin
     }
 }
 
-function kusionPreCheck(): stack.Stack | undefined {
-    var resource : vscode.Uri | undefined = util.activeTextEditorDocument()?.uri;
-    if (resource === undefined || !util.inKusionStackCheck(resource)) {
+export function kusionPreCheckByUri(targetUri: vscode.Uri|undefined): stack.Stack | undefined {
+    if (targetUri === undefined) {
         return;
     }
-    const root = util.kclWorkspaceRoot(resource);
-    const stackUri = uri.Utils.dirname(resource);
+    var resolvedUri : vscode.Uri = targetUri;
+    if (targetUri.scheme === 'kusion') {
+        // transform kusion uri to file
+        resolvedUri = vscode.Uri.parse(`file://${targetUri.fsPath}`);
+    }
+    if (!util.inKusionStackCheck(resolvedUri)) {
+        return;
+    }
+    const root = util.kclWorkspaceRoot(resolvedUri);
+    const stackUri = uri.Utils.dirname(resolvedUri);
     return new stack.Stack(stackUri, root);
 }
 
-export function kusionCompile() : void {
+function kusionPreCheck(): stack.Stack | undefined {
+    var resource : vscode.Uri | undefined = util.activeTextEditorDocument()?.uri;
+    return kusionPreCheckByUri(resource);
+}
+
+export function kusionCompile() {
     if (!ensureKusion()) {
         return;
     }
     kusionCommandRun('compile', kusionPreCheck());
 }
 
-export function kusionDiffPreview(context: vscode.ExtensionContext) : void {
+export function kusionDiffPreview(context: vscode.ExtensionContext) {
     if (!quickstart.canApplyOrDestroy()) {
         vscode.window.showWarningMessage("Minikube not ready, please wait for the minikube to start");
         return;
@@ -64,19 +76,49 @@ export function kusionDiffPreview(context: vscode.ExtensionContext) : void {
     liveDiff.showDiff(context, currentStack);
 }
 
-
-export function kusionApply() : void {
+export function kusionConfirmApply(context: vscode.ExtensionContext) {
     if (!ensureKusion()) {
         return;
     }
     if (!quickstart.canApplyOrDestroy()) {
         vscode.window.showWarningMessage("Minikube not ready, please wait for the minikube to start");
-    } else {
-        kusionCommandRun('apply', kusionPreCheck());
+        return;
     }
+    if (!liveDiff.checkInLiveDiffTab()) {
+        vscode.window.showErrorMessage('Please open the live diff tab to apply the changes');
+        return;
+    }
+    const currentStack = kusionPreCheck();
+    if (!currentStack) {
+        return;
+    }
+    const input = vscode.window.tabGroups.activeTabGroup.activeTab?.input;
+    if (!input || !(input instanceof vscode.TabInputTextDiff)) {
+        return;
+    }
+    const modified = input.modified;
+    const title = `This action will apply all the resources defined in the stack ${currentStack.name}.\nFullfill the stack name ${currentStack.name} to confirm`;
+    vscode.window.showInputBox({title: title, value: currentStack.name, placeHolder: currentStack.name, validateInput: (value): string | vscode.InputBoxValidationMessage | undefined => {
+        if (value !== currentStack.name) {
+            return {
+                message: `Stack Path mismatch: ${currentStack.name}`,
+                severity: 3
+            };
+        } else {
+            return {
+                message: 'Stack Path confirmed. Press Enter to Confirm or Press Esc to Cancel',
+                severity: 1
+            };
+        }
+    }}, undefined).then((input)=>{
+        if (input === currentStack.name) {
+            // todo: show operation progress view
+            kusionCommandRun('apply', currentStack);
+        }
+    });
 }
 
-export function kusionDestroy(): void {
+export async function kusionDestroy() {
     if (!ensureKusion()) {
         return;
     }

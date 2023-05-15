@@ -3,6 +3,7 @@ import * as util from './util';
 import * as stack from './stack';
 import * as child_process from 'child_process';
 import * as yaml from 'yaml';
+import * as output from './output';
 
 
 const KUSION_LIVE_DIFF_EDITOR_OPEN = 'inKusionLiveDiff';
@@ -56,8 +57,8 @@ export async function showDiff(context: vscode.ExtensionContext, currentStack: s
         }
     });
     vscode.commands.executeCommand('vscode.diff', 
-      vscode.Uri.parse(`kusion:${currentStack.name}?language=yaml#runtime`), 
-      vscode.Uri.parse(`kusion:${currentStack.name}?language=yaml#spec`),
+      vscode.Uri.parse(`kusion:${vscode.Uri.joinPath(currentStack.uri, 'status').fsPath}?language=yaml#runtime`), 
+      vscode.Uri.parse(`kusion:${vscode.Uri.joinPath(currentStack.uri, 'spec').fsPath}?language=yaml#spec`),
       `${currentStack.name} (Runtime) ↔ (Spec)`, 
       editorOptions).then(
         value => {
@@ -73,33 +74,29 @@ function livePreview(currentStack: stack.Stack): Promise<LiveDiffPreview> {
   return new Promise((resolve, reject) => {
     // todo: before release, if stack defination changed, the currentStack.name should change to fullName
     child_process.exec(`kusion preview -w ${currentStack.name} --output json`, {cwd: currentStack.kclWorkspaceRoot?.path}, (error, stdout, stderr) => {
-      if (error || stderr) {
-        console.error(`exec error: ${error}, ${stderr}`);
-        reject(error || stderr);
-      }
       if (stdout) {
         try {
           const result = JSON.parse(stdout) as ChangeOrder;
-          const status: { id: string; status: object; }[] = [];
-          const spec: { id: string; spec: object; }[] = [];
+          const status: {[key: string]: object} = {};
+          const spec: {[key: string]: object} = {};
           const steps = result.changeSteps;
           for (const key in steps) {
             if (steps.hasOwnProperty(key)) {
               const step = steps[key];
-              status.push({
-                'id': step.id,
-                'status': step.from
-              });
-              spec.push({
-                'id': step.id,
-                'spec': step.to
-              });
+              status[step.id] = step.from;
+              spec[step.id] = step.to;
             }
           }
           resolve(new LiveDiffPreview(status, spec));
         } catch (e) {
-          console.error(`stdout is not json: ${stdout}`);
-          reject(e);
+          console.log(`not json: ${stdout}`);
+          if (error || stderr) {
+            console.error(`kusion preview --output json exec error: ${error}, ${stderr}`);
+            output.show();
+            output.appendLine(`kusion Preview failed:`, false);
+            output.appendLine(stdout, true);
+            reject(error || stderr);
+          }
         }
       }
     });
@@ -107,10 +104,10 @@ function livePreview(currentStack: stack.Stack): Promise<LiveDiffPreview> {
 }
 
 class LiveDiffPreview {
-  status: { id: string; status: object; }[];
-  spec: { id: string; spec: object; }[];
+  status: {[key: string]: object};
+  spec: {[key: string]: object};
 
-  constructor(status: { id: string; status: object; }[], spec: { id: string; spec: object; }[]) {
+  constructor(status: {[key: string]: object}, spec: {[key: string]: object}) {
     this.status = status;
     this.spec = spec;
   }
