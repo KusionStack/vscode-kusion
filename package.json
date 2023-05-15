@@ -16,7 +16,8 @@
     "kcl.kcl-vscode-extension"
   ],
   "activationEvents": [
-    "onLanguage:KCL"
+    "onLanguage:KCL",
+    "onCommand:kusion.install"
   ],
   "main": "./out/extension.js",
   "contributes": {
@@ -35,6 +36,23 @@
         }
       }
     },
+    "walkthroughs": [
+      {
+        "id": "kusion.walkthrough",
+        "title": "Getting started with Kusion",
+        "description": "Deploy your first application to the cloud with Kusion!",
+        "steps": [
+          {
+            "id": "kusion.walkthrough.install",
+            "title": "Get your Environment Ready",
+            "description": "The Kusion Extension requires at least Kusion and KCL environment installed.\n[Install Kusion](command:kusion.install)",
+            "media": {
+							"markdown": "media/walkthroughs/install.md"
+            }
+          }
+        ]
+      }
+    ],
     "taskDefinitions": [
       {
         "type": "kusion",
