@@ -32,9 +32,21 @@ export async function activate(context: vscode.ExtensionContext) {
 	const kusionHelp = vscode.commands.registerCommand('kusion.help', commands.kusionHelp);
 	const kusionCreateProject = vscode.commands.registerCommand('kusion.createProject', () => { commands.kusionCreateProject(context); });
 	const kusionConfirmApply = vscode.commands.registerCommand('kusion.confirmApply', ()=> { commands.kusionConfirmApply(context); });
-	context.subscriptions.push(kusionCompile, kusionLiveDiff, kusionDestroy, kusionDataPreview, kusionDataPreviewToSide, kusionHelp, kusionHelp, kusionCreateProject, kusionConfirmApply);
-
-	// todo how to set context when active editor switch
+	const kusionInstall = vscode.commands.registerCommand('kusion.install', ()=>{
+		vscode.window.showInformationMessage('not implemented');
+	});
+	context.subscriptions.push(
+		kusionCompile,
+		kusionLiveDiff,
+		kusionDestroy,
+		kusionDataPreview,
+		kusionDataPreviewToSide,
+		kusionHelp,
+		kusionCreateProject,
+		kusionInstall,
+		kusionConfirmApply
+	);
+	
 	vscode.window.onDidChangeActiveTextEditor((editor) => {
 		const inKusionStack = util.inKusionStack(editor?.document.uri);
 		util.setInKusionStack(inKusionStack);
