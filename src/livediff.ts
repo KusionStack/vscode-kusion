@@ -73,7 +73,7 @@ export async function showDiff(context: vscode.ExtensionContext, currentStack: s
 function livePreview(currentStack: stack.Stack): Promise<LiveDiffPreview> {
   return new Promise((resolve, reject) => {
     // todo: before release, if stack defination changed, the currentStack.name should change to fullName
-    child_process.exec(`kusion preview -w ${currentStack.name} --output json`, {cwd: currentStack.kclWorkspaceRoot?.path}, (error, stdout, stderr) => {
+    child_process.exec(`kusion preview -w ${currentStack.name} --ignore-fields="metadata.generation,metadata.managedFields" --output json`, {cwd: currentStack.kclWorkspaceRoot?.path}, (error, stdout, stderr) => {
       if (stdout) {
         try {
           const result = JSON.parse(stdout) as ChangeOrder;
