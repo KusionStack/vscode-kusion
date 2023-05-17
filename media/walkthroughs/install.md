@@ -4,9 +4,8 @@ If you don't have Kusion and kcl installed on your machine, you can install it b
 
 To verify it's installed, create a new terminal and try running the following command:
 
-```
-kusion version
-```
+
+`kusion version`
 
 You should see something similar to the following:
 
