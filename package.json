@@ -17,7 +17,7 @@
   ],
   "activationEvents": [
     "onLanguage:KCL",
-    "onCommand:kusion.install"
+    "onCommand:kusion.checkInstall"
   ],
   "main": "./out/extension.js",
   "contributes": {
@@ -45,9 +45,58 @@
           {
             "id": "kusion.walkthrough.install",
             "title": "Get your Environment Ready",
-            "description": "The Kusion Extension requires at least Kusion and KCL environment installed.\n[Install Kusion](command:kusion.install)",
+            "description": "The Kusion Extension requires at least Kusion and KCL environment installed.\n[Install Kusion](command:kusion.checkInstall)",
             "media": {
 							"markdown": "media/walkthroughs/install.md"
+            }
+          },
+          {
+            "id": "kusion.walkthrough.openKonfig",
+            "title": "Open a Konfig Workspace Folder",
+            "description": "Open a Konfig workspace folder which contains basic kusion models.\n[Open Konfig Workspace](command:vscode.openFolder)\n__If there's already a Konfig monorepo in your organization and saved locally, directly open it.__",
+            "media": {
+              "markdown": "media/walkthroughs/open-konfig.md"
+            }
+          },
+          {
+            "id": "kusion.walkthrough.createProject",
+            "title": "Create a New Kusion Project",
+            "description": "Create a new kusion project to manage your application.\n[Create Kusion Project](command:kusion.createProject)",
+            "media": {
+              "markdown": "media/walkthroughs/create-project.md"
+            }
+          },
+          {
+            "id": "kusion.walkthrough.exploreProject",
+            "title": "Explore Your Project and Configurations",
+            "description": "Open your previously created kusion project and browse the configuration code.",
+            "media": {
+              "markdown": "media/walkthroughs/explore-project.md"
+            }
+          },
+          {
+            "id": "kusion.walkthrough.liveDiff",
+            "title": "Verify the Resource Changes to be made",
+            "description": "As all the configurations prepared, before making changes to the runtime, let's preview and check the live diff between the application's realtime status and the spec. You can check the resource changes by right clicking 'Preview Live Diff and Apply' on the stack's configuration file.",
+            "media": {
+              "markdown": "media/walkthroughs/live-diff.md"
+            }
+          },
+          {
+            "id": "kusion.walkthrough.confirmApply",
+            "title": "Apply the Application Changes",
+            "description": "If the live diff is as expected, let's apply the changes to the runtime. Click the 'Apply' button to confirm apply.",
+            "media": {
+              "markdown": "media/walkthroughs/confirm-apply.md"
+            }
+          },
+          {
+            "id": "kusion.walkthrough.help",
+            "title": "Learn More",
+            "description": "Great job! You've now completed Getting Started with Kusion. But don't stop here! There are plenty of ways to become more proficient managing and delivering applications with Kusion. \nFor example, you can [Set up Prometheus to acquire monitoring and alerting](https://kusionstack.io/docs/user_docs/guides/prometheus/recording-and-alerting), or [manage secret with Vault](https://kusionstack.io/docs/user_docs/guides/sensitive-data-solution/hosting-and-retrieving-secrets). Besides, you could [migrate your existing infra configurations from kubernetes](https://kusionstack.io/docs/user_docs/guides/adopting/). \nCheck out our [website](https://kusionstack.io/) to make the most of the Kusion!\n[Show Kusion Help](command:kusion.help)",
+            "media": {
+              "altText": "Explore more Kusion Introduction",
+              "image": "media/walkthroughs/images/help.png"
             }
           }
         ]

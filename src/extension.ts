@@ -32,8 +32,10 @@ export async function activate(context: vscode.ExtensionContext) {
 	const kusionHelp = vscode.commands.registerCommand('kusion.help', commands.kusionHelp);
 	const kusionCreateProject = vscode.commands.registerCommand('kusion.createProject', () => { commands.kusionCreateProject(context); });
 	const kusionConfirmApply = vscode.commands.registerCommand('kusion.confirmApply', ()=> { commands.kusionConfirmApply(context); });
-	const kusionInstall = vscode.commands.registerCommand('kusion.install', ()=>{
-		vscode.window.showInformationMessage('not implemented');
+	const kusionInstall = vscode.commands.registerCommand('kusion.checkInstall', ()=>{
+		if (ensureKusion()){
+			vscode.window.showInformationMessage('Kusion is already installed.');
+		}
 	});
 	context.subscriptions.push(
 		kusionCompile,
