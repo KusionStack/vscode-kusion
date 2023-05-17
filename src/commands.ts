@@ -8,6 +8,7 @@ import * as stack from './stack';
 import {ensureKusion} from './installer';
 import * as createProject from './create-project';
 import * as liveDiff from './livediff';
+import * as operationView from './operation-view';
 
 export function createAndRunTask(taskName: string, stackObj: stack.Stack) {
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
@@ -112,7 +113,7 @@ export function kusionConfirmApply(context: vscode.ExtensionContext) {
         }
     }}, undefined).then((input)=>{
         if (input === currentStack.name) {
-            // todo: show operation progress view
+            operationView.showOperationDetail(context, currentStack);
             kusionCommandRun('apply', currentStack);
         }
     });
