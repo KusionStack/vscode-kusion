@@ -43,7 +43,7 @@ export async function showDiff(context: vscode.ExtensionContext, currentStack: s
 
     // runtime/status: kusion:${stackPath}?language=yaml#runtime
     // spec: kusion:${stackPath}?language=yaml#spec
-    const previewResult: LiveDiffPreview = await livePreview(currentStack);
+    const previewResult: LiveDiffPreview = await liveDiff(currentStack);
     const registration = vscode.workspace.registerTextDocumentContentProvider('kusion', {
         provideTextDocumentContent(uri) {
           switch (uri.fragment) {
@@ -69,36 +69,51 @@ export async function showDiff(context: vscode.ExtensionContext, currentStack: s
     );
 }
 
-
-function livePreview(currentStack: stack.Stack): Promise<LiveDiffPreview> {
-  return new Promise((resolve, reject) => {
-    // todo: before release, if stack defination changed, the currentStack.name should change to fullName
-    child_process.exec(`kusion preview -w ${currentStack.name} --ignore-fields="metadata.generation,metadata.managedFields" --output json`, {cwd: currentStack.kclWorkspaceRoot?.path}, (error, stdout, stderr) => {
-      if (stdout) {
-        try {
-          const result = JSON.parse(stdout) as ChangeOrder;
-          const status: {[key: string]: object} = {};
-          const spec: {[key: string]: object} = {};
-          const steps = result.changeSteps;
-          for (const key in steps) {
-            if (steps.hasOwnProperty(key)) {
-              const step = steps[key];
-              status[step.id] = step.from;
-              spec[step.id] = step.to;
+export function livePreview(currentStack: stack.Stack): Promise<ChangeOrder> {
+    return new Promise((resolve, reject) => {
+      // todo: before release, if stack defination changed, the currentStack.name should change to fullName
+      child_process.exec(`kusion preview -w ${currentStack.name} --ignore-fields="metadata.generation,metadata.managedFields" --output json`, {cwd: currentStack.kclWorkspaceRoot?.path}, (error, stdout, stderr) => {
+        if (stdout) {
+          try {
+            const result = JSON.parse(stdout) as ChangeOrder;
+            resolve(result);
+          } catch (e) {
+            console.log(`not json: ${stdout}`);
+            if (error || stderr) {
+              console.error(`kusion preview --output json exec error: ${error}, ${stderr}`);
+              output.show();
+              output.appendLine(`kusion Preview failed:`, false);
+              output.appendLine(stdout, true);
+              reject(stderr);
             }
           }
-          resolve(new LiveDiffPreview(status, spec));
-        } catch (e) {
-          console.log(`not json: ${stdout}`);
-          if (error || stderr) {
-            console.error(`kusion preview --output json exec error: ${error}, ${stderr}`);
-            output.show();
-            output.appendLine(`kusion Preview failed:`, false);
-            output.appendLine(stdout, true);
-            reject(error || stderr);
-          }
+        }
+        if(error || stderr) {
+          console.error(`kusion preview --output json exec error: ${error}, ${stderr}`);
+          output.show();
+          output.appendLine(`kusion Preview failed:`, false);
+          output.appendLine(stderr, true);
+          reject(stderr);
+        }
+      });
+    });
+}
+
+
+export function liveDiff(currentStack: stack.Stack): Promise<LiveDiffPreview> {
+  return new Promise<LiveDiffPreview>((resolve, reject) => {
+    livePreview(currentStack).then((result: ChangeOrder) => {
+      const status: {[key: string]: object} = {};
+      const spec: {[key: string]: object} = {};
+      const steps = result.changeSteps;
+      for (const key in steps) {
+        if (steps.hasOwnProperty(key)) {
+          const step = steps[key];
+          status[step.id] = step.from;
+          spec[step.id] = step.to;
         }
       }
+      resolve(new LiveDiffPreview(status, spec));
     });
   });
 }
@@ -113,7 +128,7 @@ class LiveDiffPreview {
   }
 }
 
-class ChangeOrder {
+export class ChangeOrder {
   stepKeys: string[];
   changeSteps: ChangeSteps;
 
@@ -123,21 +138,21 @@ class ChangeOrder {
   }
 }
 
-interface ChangeSteps {
+export interface ChangeSteps {
   [key: string]: ChangeStep;
 }
 
-class ChangeStep {
+export class ChangeStep {
   // the resource id
 	id: string;
 	// the operation performed by this step
 	action: ActionType;
 	// old data
-	from: object;
+	from: ResourceNode;
 	// new data
-	to: object;
+	to: ResourceNode;
 
-  constructor(id: string, action: ActionType, from: object, to: object) {
+  constructor(id: string, action: ActionType, from: ResourceNode, to: ResourceNode) {
     this.id = id;
     this.action = action;
     this.from = from;
@@ -145,11 +160,23 @@ class ChangeStep {
   }
 }
 
-class Resource {}
-
 export enum ActionType {
   unChange = "Unchange",                  // nothing to do.
 	create = "Create",                      // creating a new resource.
 	update = "Update",                      // updating an existing resource.
 	delete = "Delete",                      // deleting an existing resource.
+}
+
+export class ResourceNode {
+  id: string;
+  type: string;
+  attributes: object;
+  dependsOn: string[];
+  
+  constructor (id: string, type: string, attributes: object, dependsOn: string[]) {
+    this.id = id;
+    this.type = type;
+    this.attributes = attributes;
+    this.dependsOn = dependsOn;
+  }
 }
