@@ -168,53 +168,63 @@ export class CreateFromTemplatePanel {
 					case 'Create Project':
 						const templateParams = JSON.parse(message.text);
 						templateParams.StacksConfig = {};
-						for (let s of template.stacks) {
-							templateParams.StacksConfig[s.name] = {};
-							for (let f of s.fields) {
-								templateParams.StacksConfig[s.name][f.name] = f.default;
-							}
-						}
-						const openDialog = vscode.window.showOpenDialog({
-                            canSelectFiles: false,
-                            canSelectFolders: true,
-                            canSelectMany: false,
-                            openLabel: 'save',
-                            title: 'Select The Target Directory to Store the Project',
-                        });
-						const projectName = templateParams.ProjectName;
-                        openDialog.then((uris)=>{
-                            if (uris?.length === 1) {
-                                const targetFolder = uris[0];
-                                const projectUri = vscode.Uri.joinPath(targetFolder, projectName);
-								const online = this._template.location.startsWith('https');
-                                const command = `kusion init ${this._template.location} ${online?'--online':''} --custom-params='${JSON.stringify(templateParams)}' --template-name=${this._template.name}`;
-                                console.log(command);
-                                child_process.exec(command, {cwd: targetFolder.path}, (err, stdout, stderr)=> {
-									this._panel.dispose();
-									if (err || stderr) {
-										output.appendLine('failed to init project:', false);
-										output.appendLine(stdout, true);
-										output.appendLine(stderr, true);
-										output.show();
-                                        return;
-                                    }
-									output.appendLine(stdout, true);
-									const inWorkspace = (vscode.workspace.getWorkspaceFolder(projectUri));
-									const openProject = inWorkspace ? 'Reveal in the Explorer' : 'Open In New Window';
-									vscode.window.showInformationMessage(`Successfully Created Kusion Project ${projectName}`, ...[openProject]).then((option)=>{
-										if (option === openProject){
-											if (inWorkspace) {
-												// the project is generated to an opened workspace, just reveal it in the explorer
-												vscode.commands.executeCommand('revealInExplorer', projectUri);
-											} else {
-												// the project is generated outside the workspace, open it in the new window
-												vscode.commands.executeCommand(`vscode.openFolder`, projectUri, true);
-											}	
+						try {
+							if ('stacks' in template) {
+								for (let s of template.stacks) {
+									templateParams.StacksConfig[s.name] = {};
+									if ('fields' in s) {
+										for (let f of s.fields) {
+											templateParams.StacksConfig[s.name][f.name] = f.default;
 										}
+									}
+								}
+							}
+							
+							const openDialog = vscode.window.showOpenDialog({
+								canSelectFiles: false,
+								canSelectFolders: true,
+								canSelectMany: false,
+								openLabel: 'save',
+								title: 'Select The Target Directory to Store the Project',
+							});
+							const projectName = templateParams.ProjectName;
+							openDialog.then((uris)=>{
+								if (uris?.length === 1) {
+									const targetFolder = uris[0];
+									const projectUri = vscode.Uri.joinPath(targetFolder, projectName);
+									const online = this._template.location.startsWith('https');
+									const command = `kusion init ${this._template.location} ${online?'--online':''} --custom-params='${JSON.stringify(templateParams)}' --template-name=${this._template.name}`;
+									console.log(command);
+									child_process.exec(command, {cwd: targetFolder.path}, (err, stdout, stderr)=> {
+										this._panel.dispose();
+										if (err || stderr) {
+											output.appendLine('failed to init project:', false);
+											output.appendLine(stdout, true);
+											output.appendLine(stderr, true);
+											output.show();
+											return;
+										}
+										output.appendLine(stdout, true);
+										const inWorkspace = (vscode.workspace.getWorkspaceFolder(projectUri));
+										const openProject = inWorkspace ? 'Reveal in the Explorer' : 'Open In New Window';
+										vscode.window.showInformationMessage(`Successfully Created Kusion Project ${projectName}`, ...[openProject]).then((option)=>{
+											if (option === openProject){
+												if (inWorkspace) {
+													// the project is generated to an opened workspace, just reveal it in the explorer
+													vscode.commands.executeCommand('revealInExplorer', projectUri);
+												} else {
+													// the project is generated outside the workspace, open it in the new window
+													vscode.commands.executeCommand(`vscode.openFolder`, projectUri, true);
+												}	
+											}
+										});
 									});
-                                });
-                            }
-                        });
+								}
+							});
+						} catch (error) {
+							console.log(error);
+							vscode.window.showErrorMessage('Failed to create project: ' + error);
+						}
 						return;
 				}
 			},
