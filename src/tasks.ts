@@ -134,7 +134,7 @@ export const kusionCommands = new Map<string, (stackPath:string) => string> ([
     [
         'apply', 
         (workdir: string) => {
-            return `kusion apply -w ${workdir} --watch`;
+            return `kusion apply -w ${workdir} --watch --yes`;
         },
     ],
     [
