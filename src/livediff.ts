@@ -161,7 +161,7 @@ export class ChangeStep {
 }
 
 export enum ActionType {
-  unChange = "Unchange",                  // nothing to do.
+  unChange = "UnChange",                  // nothing to do.
 	create = "Create",                      // creating a new resource.
 	update = "Update",                      // updating an existing resource.
 	delete = "Delete",                      // deleting an existing resource.

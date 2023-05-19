@@ -25,12 +25,6 @@ export async function showOperationDetail(context: vscode.ExtensionContext, curr
         }
     );
 
-    // get live diff preview result
-    const liveDiffPreview = await liveDiff.livePreview(currentStack);
-    // 获取当前 stack 下需要变更的资源的列表：
-    const resourceList = getResourceList(liveDiffPreview);
-    // todo depends on
-    const resourceResult = JSON.stringify(resourceList);
     const scriptPathOnDisk = vscode.Uri.joinPath(context.extensionUri, 'media', 'flow.js');
     // And the uri we use to load this script in the webview
     const scriptUri = webview.webview.asWebviewUri(scriptPathOnDisk);
@@ -87,23 +81,43 @@ export async function showOperationDetail(context: vscode.ExtensionContext, curr
     </body>
 </html>`;
     webview.webview.html = html;
-    webview.webview.postMessage({ command: 'init', data: new OperationInfo(currentStack.project.name, currentStack.name) });
-    webview.webview.postMessage({ command: 'update', data: resourceResult });
+    webview.webview.postMessage({ command: 'init', data: new OperationInfo(currentStack.project.name, currentStack.name, StackStatus.syncing) });
+    // get live diff preview result
+    const liveDiffPreview = await liveDiff.livePreview(currentStack);
+    // update the resources status ans resource map
+    const operationInfo = getOperationInfo(currentStack.project.name, currentStack.name,liveDiffPreview);
+    const operationMsg = JSON.stringify(operationInfo);
+    webview.webview.postMessage({ command: 'update', data: operationMsg });
 }
 
-function getResourceList(changeOrder: liveDiff.ChangeOrder) {
-    const resourceList: K8sResourceChange[] = [];
+function getOperationInfo(project: string, stack: string, changeOrder: liveDiff.ChangeOrder):  OperationInfo {
+    const resourceMap = getResourceMap(changeOrder);
+    return new OperationInfo(project, stack, getStackStatus(resourceMap), resourceMap);
+}
+
+function getStackStatus(resourceMap: {[name:string]: K8sResourceChange}): StackStatus {
+    for (const id in resourceMap) {
+        if (resourceMap[id].status !== ResourceStatus.synced) {
+            return StackStatus.syncing;
+        }
+    }
+    return StackStatus.synced;
+}
+
+function getResourceMap(changeOrder: liveDiff.ChangeOrder) {
+    const resourceMap: {[name:string]: K8sResourceChange} = {};
     changeOrder.stepKeys.forEach(stepKey => {
         const step = changeOrder.changeSteps[stepKey];
         var dependsOn: string[] = [];
         if (step.action === liveDiff.ActionType.unChange || step.action === liveDiff.ActionType.update) {
+            // todo: check the step.from and step.to, not only the step.to
             dependsOn = step.to.dependsOn;
         }
         const res = getResourceInfo(stepKey, step);
         res.setDependsOn(dependsOn);
-        resourceList.push(res);
+        resourceMap[res.id] = res;
     });
-    return resourceList;
+    return resourceMap;
 }
 
 
@@ -111,24 +125,41 @@ function getResourceList(changeOrder: liveDiff.ChangeOrder) {
 function getResourceInfo(stepKey: string, step: liveDiff.ChangeStep): K8sResourceChange {
     // todo: support non-k8s resource
     const stepKeyParts = stepKey.split(':');
-    const resource = new K8sResourceChange(stepKeyParts[0], stepKeyParts[1], stepKeyParts[2], stepKeyParts[3], step.action);
+    var resourceStatus = ((action: liveDiff.ActionType) => {
+        switch (step.action) {
+            case liveDiff.ActionType.create:
+                return ResourceStatus.toCreate;
+            case liveDiff.ActionType.delete:
+                return ResourceStatus.toDelete;
+            case liveDiff.ActionType.update:
+                return ResourceStatus.toUpdate;
+            case liveDiff.ActionType.unChange:
+                return ResourceStatus.synced;
+            default:
+                return ResourceStatus.synced;
+        }
+    })(step.action);
+    
+    const resource = new K8sResourceChange(stepKey, stepKeyParts[0], stepKeyParts[1], stepKeyParts[2], stepKeyParts[3], resourceStatus);
     return resource;
 }
 
 class K8sResourceChange {
+    id: string;
     name: string;
     apiVersion: string;
     kind: string;
     namespace: string;
-    action: liveDiff.ActionType;
+    status: ResourceStatus;
     dependsOn: string[] = [];
     
-    constructor(apiVersion: string, kind: string, namespace: string, name: string, action: liveDiff.ActionType) {
+    constructor(id: string, apiVersion: string, kind: string, namespace: string, name: string, status: ResourceStatus) {
+        this.id = id;
         this.name = kind === 'Namespace' ? namespace : name;
         this.apiVersion = apiVersion;
         this.kind = kind;
         this.namespace = namespace;
-        this.action = action;
+        this.status = status;
     }
 
     setDependsOn(dependsOn: string[]) {
@@ -139,9 +170,29 @@ class K8sResourceChange {
 class OperationInfo {
     project: string;
     stack: string;
+    status: StackStatus;
+    resourceMap: {[name:string]: K8sResourceChange};
 
-    constructor(project: string, stack: string) {
+    constructor(project: string, stack: string, status: StackStatus = StackStatus.syncing, resourceMap: {[name:string]: K8sResourceChange} = {}) {
         this.project = project;
         this.stack = stack;
+        this.status = status;
+        this.resourceMap = resourceMap;
     }
+}
+
+enum ResourceStatus {
+    toCreate = 'toCreate',
+    creating = 'creating',
+    toUpdate = 'toUpdate',
+    updating = 'updating',
+    toDelete = 'toDelete',
+    deleting = 'deleting',
+    synced = 'synced',
+}
+
+enum StackStatus {
+    synced = 'synced',
+    syncing = 'syncing',
+    unsynced = 'unsynced',
 }
