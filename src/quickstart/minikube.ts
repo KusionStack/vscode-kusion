@@ -25,7 +25,7 @@ type MinikubeStatus = {
     Worker: boolean
 };
 
-export function checkMinikubeRunning():boolean {
+export function checkMinikubeRunning(): boolean {
     return minikubeRunning;
 }
 
@@ -41,8 +41,8 @@ export function waitMinikubeStart(output: vscode.OutputChannel): void {
 
         // keep checking minikube status, until minikube starts ready
         const p = new Promise<void>(async resolve => {
-            let refreshIntervalId = setInterval(()=> {
-                const afterReady = ()=> {
+            let refreshIntervalId = setInterval(() => {
+                const afterReady = () => {
                     // stop looping after minikube start ready
                     clearInterval(refreshIntervalId);
                     resolve();
@@ -59,17 +59,17 @@ export function waitMinikubeStart(output: vscode.OutputChannel): void {
     });
 }
 
-function checkMinikueReady(startMinikube: ()=> void, afterReady: ()=>void):void {
+function checkMinikueReady(startMinikube: () => void, afterReady: () => void): void {
     child_process.exec("minikube status -o json", (error, stdout, stderr) => {
         if (stdout !== "") {
             console.log(`minikube status stdout: ${stdout}`);
             function isMyType(o: any): o is MinikubeStatus {
-                return "Name" in o && "Host" in o && "Kubelet" in o && "APIServer" in o && "Kubeconfig"in o && "Worker" in o;
+                return "Name" in o && "Host" in o && "Kubelet" in o && "APIServer" in o && "Kubeconfig" in o && "Worker" in o;
             }
             try {
                 const status = JSON.parse(stdout);
                 if (isMyType(status)) {
-                    const ready = status !== undefined && status.Host === status.Kubelet &&  status.Kubelet === status.APIServer && status.APIServer === "Running" && status.Kubeconfig === "Configured";
+                    const ready = status !== undefined && status.Host === status.Kubelet && status.Kubelet === status.APIServer && status.APIServer === "Running" && status.Kubeconfig === "Configured";
                     if (!ready && !minikubeStarting) {
                         minikubeStarting = true;
                         startMinikube();
@@ -80,16 +80,16 @@ function checkMinikueReady(startMinikube: ()=> void, afterReady: ()=>void):void 
                     }
                 }
                 return;
-            } catch(e) {
+            } catch (e) {
                 // before minikube started, the `minikube status -o json` command may return invalid json with warning message, no need to handle json parse error
-                if(!minikubeStarting) {
+                if (!minikubeStarting) {
                     minikubeStarting = true;
                     startMinikube();
                 }
                 return;
             }
         }
-        if(!minikubeStarting) {
+        if (!minikubeStarting) {
             minikubeStarting = true;
             startMinikube();
         }
@@ -117,25 +117,25 @@ export function notifySvc(stackObj: stack.Stack) {
         function portForward(): void {
             const port = defaultPort.toString();
             const portForwardSpawn = child_process.spawn('kubectl', ['port-forward', '-n', `${quickstartNs}`, `svc/${quickstartSvc}`, `${port}:${quickstartSvcPort}`]);
-            portForwardSpawn.stdout.on('data', function(data){
+            portForwardSpawn.stdout.on('data', function (data) {
                 const stdoutMsg = data.toString();
                 console.log(stdoutMsg);
                 if (stdoutMsg.includes(`Forwarding from 127.0.0.1:${port} -> ${quickstartSvcPort}`)) {
                     const openInBrowser = 'Open In Browser';
-                    vscode.window.showInformationMessage(`Forwarding from 127.0.0.1:${port} -> ${quickstartSvcPort}`, ...[openInBrowser]).then((option)=>{
-                        if (option === openInBrowser){
+                    vscode.window.showInformationMessage(`Forwarding from 127.0.0.1:${port} -> ${quickstartSvcPort}`, ...[openInBrowser]).then((option) => {
+                        if (option === openInBrowser) {
                             // this will open the Url in your default browser
                             vscode.env.openExternal(vscode.Uri.parse(`http://127.0.0.1:${port}`));
                         }
                     });
                 }
             });
-            portForwardSpawn.stderr.on('data', function(data){
+            portForwardSpawn.stderr.on('data', function (data) {
                 const errMsg = data.toString();
                 if (errMsg.includes('bind: address already in use unable to create listener')) {
                     console.log(`port ${port} already in use, changing to another: ${errMsg}`);
                     portUsed.push(defaultPort);
-                    while(portUsed.includes(defaultPort)){
+                    while (portUsed.includes(defaultPort)) {
                         defaultPort = util.randomNumBetween(1024, 65535);
                     }
                     portForward();
@@ -149,12 +149,12 @@ export function notifySvc(stackObj: stack.Stack) {
                     vscode.window.showErrorMessage(errMsg);
                 }
             });
-            portForwardSpawn.on("close", function(code){
+            portForwardSpawn.on("close", function (code) {
                 console.log("The port-forward process ended with the code", code);
             });
         }
 
-        vscode.window.showInformationMessage(`Detect Service with type: ClusterIP. Forward Port ${quickstartSvcPort}?`, 'Forward Port').then((opt)=>{
+        vscode.window.showInformationMessage(`Detect Service with type: ClusterIP. Forward Port ${quickstartSvcPort}?`, 'Forward Port').then((opt) => {
             if (opt !== 'Forward Port') {
                 return;
             }
@@ -165,10 +165,10 @@ export function notifySvc(stackObj: stack.Stack) {
 }
 
 
-function waitForServiceReady(afterSvcPodReady: ()=>void): void {
+function waitForServiceReady(afterSvcPodReady: () => void): void {
     var svcReady = false;
     var podReady = false;
-    let refreshIntervalId = setInterval(()=>{
+    let refreshIntervalId = setInterval(() => {
         // todo 改成 spawn
         child_process.exec(`kubectl get svc -n ${quickstartNs}`, (error, stdout, stderr) => {
             if (error) {
@@ -176,7 +176,7 @@ function waitForServiceReady(afterSvcPodReady: ()=>void): void {
                 clearInterval(refreshIntervalId);
                 return;
             }
-            
+
             if (stdout.startsWith("NAME") && stdout.includes(quickstartSvc) && !svcReady) {
                 console.log(`${stdout}`);
                 console.log("svc created");
@@ -193,22 +193,22 @@ function waitForServiceReady(afterSvcPodReady: ()=>void): void {
 
 
     }, 5000);
-    let refreshPodIntervalId = setInterval(()=>{
+    let refreshPodIntervalId = setInterval(() => {
         child_process.exec(`kubectl get pod -n ${quickstartProject}`, (error, stdout, stderr) => {
             if (error) {
                 console.log(`failed to get pod: ${error}`);
                 clearInterval(refreshPodIntervalId);
                 return;
             }
-            
+
             if (svcReady && stdout.startsWith("NAME")) {
                 console.log(`${stdout}`);
                 var pods = stdout.split('\n');
                 if (pods.length >= 1) {
                     pods.shift();
                     var podRunning = 0;
-                    pods.forEach((pod: string)=> {
-                        if(pod.startsWith(quickstartFrontendPod) && pod.includes("Running")) {
+                    pods.forEach((pod: string) => {
+                        if (pod.startsWith(quickstartFrontendPod) && pod.includes("Running")) {
                             podRunning += 1;
                         }
                         if (pod.startsWith(quickstartRedisLeader) && pod.includes("Running")) {

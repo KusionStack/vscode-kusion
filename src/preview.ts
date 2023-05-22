@@ -3,7 +3,7 @@ import * as uri from 'vscode-uri';
 import * as child_process from 'child_process';
 import * as util from './util';
 import * as shiki from 'shiki';
-import {ensureKusion} from './installer';
+import { ensureKusion } from './installer';
 
 const viewType = 'kusion.dataPreview';
 
@@ -11,22 +11,22 @@ export function showDataPreview(dataPreviewSettings: ShowDataPreviewSettings) {
     if (!ensureKusion(false, true)) {
         return;
     }
-    var resource : vscode.Uri | undefined = util.activeTextEditorDocument()?.uri;
+    var resource: vscode.Uri | undefined = util.activeTextEditorDocument()?.uri;
     if (resource === undefined || !util.inKusionStackCheck(resource)) {
         return;
     }
-    
-    var locked = !! dataPreviewSettings.locked;
+
+    var locked = !!dataPreviewSettings.locked;
     const resourceColumn = (vscode.window.activeTextEditor && vscode.window.activeTextEditor.viewColumn) || vscode.ViewColumn.One;
     var previewColumn = dataPreviewSettings.sideBySide ? vscode.ViewColumn.Beside : resourceColumn;
     const root = util.kclWorkspaceRoot(resource);
     const stackUri = uri.Utils.dirname(resource);
     const stackFullName = util.getStackFullName(stackUri, root);
-	const webview = vscode.window.createWebviewPanel(
-        viewType, 
-        getViewTitle(stackFullName, locked), 
-        previewColumn, 
-        { enableFindWidget: true, enableScripts: true}
+    const webview = vscode.window.createWebviewPanel(
+        viewType,
+        getViewTitle(stackFullName, locked),
+        previewColumn,
+        { enableFindWidget: true, enableScripts: true }
     );
     var extensionContext = vscode.extensions.getExtension("KusionStack.kusion");
     if (extensionContext?.extensionUri) {
@@ -48,7 +48,7 @@ export function showDataPreview(dataPreviewSettings: ShowDataPreviewSettings) {
 
         webview.webview.html = vscode.window.activeColorTheme.kind in [1, 4] ? lightHtml : darkHtml;
 
-        vscode.window.onDidChangeActiveColorTheme( (theme) => {
+        vscode.window.onDidChangeActiveColorTheme((theme) => {
             webview.webview.html = theme.kind in [1, 4] ? lightHtml : darkHtml;
         });
     });
@@ -66,15 +66,15 @@ function getViewTitle(stackLabel: string, locked: boolean,): string {
 }
 
 interface ShowDataPreviewSettings {
-	readonly sideBySide?: boolean;
-	readonly locked?: boolean;
+    readonly sideBySide?: boolean;
+    readonly locked?: boolean;
 }
 
 async function compileStackData(stackUri: vscode.Uri): Promise<string> {
     const command = `kcl -Y ${util.settingsPath('')} ${util.kclYamlPath('')}`;
-    return new Promise((resolve)=> {
-        child_process.exec(command, { cwd: stackUri.path }, (err, stdout, stderr)=> {
-            if (err || stderr){
+    return new Promise((resolve) => {
+        child_process.exec(command, { cwd: stackUri.path }, (err, stdout, stderr) => {
+            if (err || stderr) {
                 resolve(`Stack Compile Failed, Stderr:\n${stderr}`);
             }
             resolve(stdout);

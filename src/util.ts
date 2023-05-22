@@ -22,38 +22,38 @@ export function setInKusionStack(value: boolean): Thenable<void> {
     return setContextValue(ACTIVE_EDITOR_IN_KUSION_STACK, value);
 }
 
-export function getStackFullName(path: vscode.Uri | string, root: vscode.Uri | undefined) : string {
+export function getStackFullName(path: vscode.Uri | string, root: vscode.Uri | undefined): string {
     if (root === undefined) {
         root = kclWorkspaceRoot(path);
     }
     if (root === undefined) {
         // no KCL workspace root found, use stack's absolute file path
-        return path instanceof vscode.Uri ? path.fsPath: path;
+        return path instanceof vscode.Uri ? path.fsPath : path;
     }
     const p = require('path');
-    return p.relative(root.path, path instanceof vscode.Uri ? path.path: path);
+    return p.relative(root.path, path instanceof vscode.Uri ? path.path : path);
 }
 
-export function getProjectFullName(path: vscode.Uri | string, root: vscode.Uri | undefined) : string {
+export function getProjectFullName(path: vscode.Uri | string, root: vscode.Uri | undefined): string {
     if (root === undefined) {
         root = kclWorkspaceRoot(path);
     }
     if (root === undefined) {
         // no KCL workspace root found, use stack's absolute file path
-        return path instanceof vscode.Uri ? path.fsPath: path;
+        return path instanceof vscode.Uri ? path.fsPath : path;
     }
     const p = require('path');
-    return p.relative(root.path, path instanceof vscode.Uri ? path.path: path);
+    return p.relative(root.path, path instanceof vscode.Uri ? path.path : path);
 }
 
 export function kclWorkspaceRoot(path: vscode.Uri | string): vscode.Uri | undefined {
-    var fromUri = path instanceof vscode.Uri ? path: vscode.Uri.file(path);
+    var fromUri = path instanceof vscode.Uri ? path : vscode.Uri.file(path);
     while (true) {
         const modPath = uri.Utils.joinPath(fromUri, kclModFile);
         if (fs.existsSync(modPath.path)) {
             return fromUri;
         }
-        if(fromUri.path === '/') {
+        if (fromUri.path === '/') {
             return undefined;
         }
         fromUri = uri.Utils.dirname(fromUri);
@@ -69,20 +69,20 @@ export function inKusionStack(currentUri: vscode.Uri | undefined): boolean {
     return fs.existsSync(stackFilePath.fsPath);
 }
 
-export function inKusionStackCheck(activeEdior: vscode.Uri|undefined): boolean {
+export function inKusionStackCheck(activeEdior: vscode.Uri | undefined): boolean {
     if (activeEdior === undefined || !inKusionStack(activeEdior)) {
-        vscode.window.showWarningMessage(`Not in a Kusion Stack: ${activeEdior?activeEdior.path:"No Active Editor Found"}`);
+        vscode.window.showWarningMessage(`Not in a Kusion Stack: ${activeEdior ? activeEdior.path : "No Active Editor Found"}`);
         return false;
     }
     return true;
 }
 
-export const settingsPath = (stackPath: string)=>{
+export const settingsPath = (stackPath: string) => {
     const p = require('path');
     return p.join(stackPath, 'ci-test', 'settings.yaml');
 };
 
-export const kclYamlPath = (stackPath: string)=>{
+export const kclYamlPath = (stackPath: string) => {
     const p = require('path');
     return p.join(stackPath, 'kcl.yaml');
 };
@@ -93,9 +93,9 @@ export function randomNumBetween(pMin: number, pMax: number) {
     if (pMax < pMin) {
         let t = pMin; pMin = pMax; pMax = t;
     }
-    return Math.floor(Math.random() * (pMax+1 - pMin) + pMin);
+    return Math.floor(Math.random() * (pMax + 1 - pMin) + pMin);
 }
 
 export function stripAnsi(from: string): string {
-	return from.replace(/[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]/g, ''); 
+    return from.replace(/[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]/g, '');
 }

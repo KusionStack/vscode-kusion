@@ -12,7 +12,7 @@ export enum Platform {
     Unsupported,  // shouldn't happen!
 }
 
-export interface ExecCallback extends shelljs.ExecCallback {}
+export interface ExecCallback extends shelljs.ExecCallback { }
 
 export interface Shell {
     isWindows(): boolean;
@@ -25,12 +25,12 @@ export interface Shell {
 }
 
 export const shell: Shell = {
-    isWindows : isWindows,
-    isUnix : isUnix,
-    platform : platform,
-    home : home,
-    combinePath : combinePath,
-    fileUri : fileUri,
+    isWindows: isWindows,
+    isUnix: isUnix,
+    platform: platform,
+    home: home,
+    combinePath: combinePath,
+    fileUri: fileUri,
     which: which,
 };
 

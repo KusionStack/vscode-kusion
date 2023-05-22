@@ -28,8 +28,8 @@ type StackTemplate = {
 };
 
 export enum KclType {
-    string = 'string',
-    int = 'int',
+	string = 'string',
+	int = 'int',
 }
 
 export function goToTemplateSetting() {
@@ -45,7 +45,7 @@ export function getTemplates(): Promise<Map<string, InitTemplateData>> {
 	}
 	var count = templateLocations.length;
 	var allTemplates: InitTemplateData[] = [];
-	
+
 	return new Promise<Map<string, InitTemplateData>>((resolve, reject) => {
 		templateLocations.forEach((loc) => {
 			const parsedLoc = vscode.Uri.parse(loc);
@@ -53,19 +53,19 @@ export function getTemplates(): Promise<Map<string, InitTemplateData>> {
 			const location = online ? loc : parsedLoc.path;
 			const command = `kusion init templates ${location} ${online ? "--online=true" : ""} -o json`;
 			var errorMsgs: string[] = [];
-			child_process.exec(command, (err, stdout, stderr)=> {
+			child_process.exec(command, (err, stdout, stderr) => {
 				if (stdout) {
 					try {
 						const templates = JSON.parse(stdout) as InitTemplateData[];
 						if (templates) {
-							const withLocation = templates.map((t) => {t.location = location; return t;});
+							const withLocation = templates.map((t) => { t.location = location; return t; });
 							allTemplates.push(...withLocation);
 						}
 					} catch (error) {
 						errorMsgs.push(stdout);
 					}
 				}
-				if (err || stderr){
+				if (err || stderr) {
 					// todo: this error will be fixed in lated kusion
 					if (!stderr.trim().endsWith("[WARN] install kclvm failed: error[E3M38]: No input KCL files or paths")) {
 						errorMsgs.push(stderr);
@@ -74,11 +74,11 @@ export function getTemplates(): Promise<Map<string, InitTemplateData>> {
 				if (errorMsgs.length !== 0) {
 					output.show();
 					output.appendLine(`Failed to load templates from ${loc}:`, false);
-					errorMsgs.forEach((msg)=> {
+					errorMsgs.forEach((msg) => {
 						output.appendLine(`\t${util.stripAnsi(msg)}`, true);
 					});
 				}
-				count --;
+				count--;
 				if (count === 0) {
 					const map = allTemplates.reduce((acc, t) => {
 						acc.set(templateUniqueId(t.name, t.location), t);
@@ -87,12 +87,12 @@ export function getTemplates(): Promise<Map<string, InitTemplateData>> {
 					resolve(map);
 				}
 			});
-		
+
 		});
 	});
 }
 
-export function templateUniqueId(name: string, location: string|undefined): string {
+export function templateUniqueId(name: string, location: string | undefined): string {
 	return `${name}@${location}`;
 }
 
@@ -142,7 +142,7 @@ export class CreateFromTemplatePanel {
 		this._panel = panel;
 		this._extensionUri = extensionUri;
 		this._template = template;
-		
+
 		// Set the webview's initial html content
 		this._update(this._template);
 
@@ -179,7 +179,7 @@ export class CreateFromTemplatePanel {
 									}
 								}
 							}
-							
+
 							const openDialog = vscode.window.showOpenDialog({
 								canSelectFiles: false,
 								canSelectFolders: true,
@@ -188,14 +188,14 @@ export class CreateFromTemplatePanel {
 								title: 'Select The Target Directory to Store the Project',
 							});
 							const projectName = templateParams.ProjectName;
-							openDialog.then((uris)=>{
+							openDialog.then((uris) => {
 								if (uris?.length === 1) {
 									const targetFolder = uris[0];
 									const projectUri = vscode.Uri.joinPath(targetFolder, projectName);
 									const online = this._template.location.startsWith('https');
-									const command = `kusion init ${this._template.location} ${online?'--online':''} --custom-params='${JSON.stringify(templateParams)}' --template-name=${this._template.name}`;
+									const command = `kusion init ${this._template.location} ${online ? '--online' : ''} --custom-params='${JSON.stringify(templateParams)}' --template-name=${this._template.name}`;
 									console.log(command);
-									child_process.exec(command, {cwd: targetFolder.path}, (err, stdout, stderr)=> {
+									child_process.exec(command, { cwd: targetFolder.path }, (err, stdout, stderr) => {
 										this._panel.dispose();
 										if (err || stderr) {
 											output.appendLine('failed to init project:', false);
@@ -207,15 +207,15 @@ export class CreateFromTemplatePanel {
 										output.appendLine(stdout, true);
 										const inWorkspace = (vscode.workspace.getWorkspaceFolder(projectUri));
 										const openProject = inWorkspace ? 'Reveal in the Explorer' : 'Open In New Window';
-										vscode.window.showInformationMessage(`Successfully Created Kusion Project ${projectName}`, ...[openProject]).then((option)=>{
-											if (option === openProject){
+										vscode.window.showInformationMessage(`Successfully Created Kusion Project ${projectName}`, ...[openProject]).then((option) => {
+											if (option === openProject) {
 												if (inWorkspace) {
 													// the project is generated to an opened workspace, just reveal it in the explorer
 													vscode.commands.executeCommand('revealInExplorer', projectUri);
 												} else {
 													// the project is generated outside the workspace, open it in the new window
 													vscode.commands.executeCommand(`vscode.openFolder`, projectUri, true);
-												}	
+												}
 											}
 										});
 									});
@@ -249,7 +249,7 @@ export class CreateFromTemplatePanel {
 
 	private _update(template: InitTemplateData) {
 		const webview = this._panel.webview;
-        this._updateCreateWebview(webview, template);
+		this._updateCreateWebview(webview, template);
 	}
 
 	private _updateCreateWebview(webview: vscode.Webview, template: InitTemplateData) {
@@ -275,7 +275,7 @@ export class CreateFromTemplatePanel {
 		// Use a nonce to only allow specific scripts to be run
 		const nonce = getNonce();
 
-        const html = /*html*/ `<!DOCTYPE html>
+		const html = /*html*/ `<!DOCTYPE html>
         <html lang="en">
         <head>
             <meta charset="UTF-8">
@@ -309,19 +309,19 @@ export class CreateFromTemplatePanel {
 }
 
 function generateForm(template: InitTemplateData) {
-    var projectBlock = generateLabelInputBlock("ProjectName", KclType.string, template.projectName, template.description);
+	var projectBlock = generateLabelInputBlock("ProjectName", KclType.string, template.projectName, template.description);
 
-    for(const attr of template.projectFields) {
-        const attrBlock = generateLabelInputBlock(attr.name, attr.type, attr.default, attr.description);
-        projectBlock = projectBlock.concat(attrBlock);
-    }
-    return projectBlock;
+	for (const attr of template.projectFields) {
+		const attrBlock = generateLabelInputBlock(attr.name, attr.type, attr.default, attr.description);
+		projectBlock = projectBlock.concat(attrBlock);
+	}
+	return projectBlock;
 }
 
 function generateLabelInputBlock(label: string, type: KclType, defaultValue: string, description: string): string {
-    return `<div class="form-group">
+	return `<div class="form-group">
     <label for="${label}">${label}</label>
 	<small id="${label}Help" class="form-text text-muted">${description}</small>
-    <input type="${type === KclType.int ? "number": "text"}" class="form-control" id="${label}" aria-describedby="${label}Help" value="${defaultValue}" placeholder="${defaultValue}">
+    <input type="${type === KclType.int ? "number" : "text"}" class="form-control" id="${label}" aria-describedby="${label}Help" value="${defaultValue}" placeholder="${defaultValue}">
 </div>`;
 }

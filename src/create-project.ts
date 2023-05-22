@@ -13,7 +13,7 @@ export async function multiStepInput(context: vscode.ExtensionContext) {
 
 	const settingsButton = new TemplateButton(new vscode.ThemeIcon("gear"), 'Set Template Locations');
 	const fromTemplateLabel = 'Create From Template';
-    const fromSchemaLabel = 'Create From Schema';
+	const fromSchemaLabel = 'Create From Schema';
 	const archetypeForms: vscode.QuickPickItem[] = [fromTemplateLabel]
 		.map(label => ({ label }));
 	const templates = templateView.getTemplates();
@@ -74,7 +74,7 @@ export async function multiStepInput(context: vscode.ExtensionContext) {
 			state.template = pick;
 		}
 	}
-	
+
 	function shouldResume() {
 		// Could show a notification with the option to resume.
 		return new Promise<boolean>((resolve, reject) => {
@@ -86,7 +86,7 @@ export async function multiStepInput(context: vscode.ExtensionContext) {
 		return new Promise<vscode.QuickPickItem[]>((resolve, reject) => {
 			templates.then(allTemplates => {
 				const result: vscode.QuickPickItem[] = [];
-				allTemplates.forEach((t, templateId)=>{
+				allTemplates.forEach((t, templateId) => {
 					result.push(
 						{
 							label: t.name,
