@@ -51,3 +51,12 @@ All notable changes to the "kusion" extension will be documented in this file.
 
 - support `Kusion: Create Kusion Project From Archetype` command to create a kusion project from template.
 - support `kusion.templates.location` settings to configure the locations to load kusion templates from.
+
+## [0.0.14] - 2023-5-22
+
+### Added
+
+- add walkthrough: Getting started with Kusion.
+- support live-diff preview between real state and desired state of a stack: right click and select "Preview Live Diff and Apply" on the stack's main file.
+- support apply button on the right corner of the live-diff page.
+- add stack status page after applying changes.

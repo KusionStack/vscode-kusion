@@ -10,7 +10,7 @@ Welcome to KusionStack's world for your cloud delivery! We hope this extension e
 
 -   **Step 1.** Install Kusion on your system.
 -   **Step 2.** Install the Kusion extension for Visual Studio Code. This extension requires the VS Code 1.68+
--   **Step 3.** Begin your Kusion tour starting from [Kusion's quick start](https://kusionstack.io/docs/user_docs/getting-started/usecase).
+-   **Step 3.** Begin your Kusion tour starting from [Kusion's quick start](https://kusionstack.io/docs/user_docs/getting-started/cloudide).
 
 ## Features
 
