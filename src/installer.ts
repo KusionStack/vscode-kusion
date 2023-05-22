@@ -78,7 +78,7 @@ function getAvailableInstallTools(): InstallTool | undefined {
 
 function installKusion() {
     const tool = getAvailableInstallTools();
-    const preRequirets = shell.isWindows() ? 'scoop or powershell': 'brew or curl';
+    const preRequirets = shell.isWindows() ? 'scoop or powershell' : 'brew or curl';
     if (!tool) {
         vscode.window.showErrorMessage(`To install kusion, please have ${preRequirets} installed first. More about Kusion installation: https://kusionstack.io/docs/user_docs/getting-started/install`);
         return;
@@ -86,7 +86,7 @@ function installKusion() {
     const terminal = vscode.window.activeTerminal ? vscode.window.activeTerminal : vscode.window.createTerminal();
     terminal.show();
     terminal.sendText(`#${tool.name} detected, installing kusion with ${tool.name}...`);
-    for (let i=0; i<tool.commands.length; i++) {
+    for (let i = 0; i < tool.commands.length; i++) {
         terminal.sendText(tool.commands[i]);
     }
     return;

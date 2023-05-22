@@ -8,10 +8,10 @@ import * as vscode from 'vscode';
 import * as stack from './stack';
 
 export class KusionTaskProvider implements vscode.TaskProvider {
-	static kusionType = 'kusion';
-	private kusionPromise: Thenable<vscode.Task[]> | undefined = undefined;
+    static kusionType = 'kusion';
+    private kusionPromise: Thenable<vscode.Task[]> | undefined = undefined;
 
-	constructor(workspaceRoot: string|undefined) {
+    constructor(workspaceRoot: string | undefined) {
         if (workspaceRoot) {
             const pattern = path.join(workspaceRoot, '**​/*.k');
             const fileWatcher = vscode.workspace.createFileSystemWatcher(pattern);
@@ -19,34 +19,34 @@ export class KusionTaskProvider implements vscode.TaskProvider {
             fileWatcher.onDidCreate(() => this.kusionPromise = undefined);
             fileWatcher.onDidDelete(() => this.kusionPromise = undefined);
         }
-	}
+    }
 
-	public provideTasks(): Thenable<vscode.Task[]> | undefined {
-		if (!this.kusionPromise) {
-			this.kusionPromise = getKusionTasks();
-		}
-		return this.kusionPromise;
-	}
+    public provideTasks(): Thenable<vscode.Task[]> | undefined {
+        if (!this.kusionPromise) {
+            this.kusionPromise = getKusionTasks();
+        }
+        return this.kusionPromise;
+    }
 
-	public resolveTask(_task: vscode.Task): vscode.Task | undefined {
-		return _task;
-	}
+    public resolveTask(_task: vscode.Task): vscode.Task | undefined {
+        return _task;
+    }
 }
 
 
 export interface KusionTaskDefinition extends vscode.TaskDefinition {
-	/**
-	 * The task name
-	 */
-	task: string;
+    /**
+     * The task name
+     */
+    task: string;
 }
 
 async function getKusionTasks(): Promise<vscode.Task[]> {
-	const workspaceFolders = vscode.workspace.workspaceFolders;
-	const result: vscode.Task[] = [];
-	if (!workspaceFolders || workspaceFolders.length === 0) {
-		return result;
-	}
+    const workspaceFolders = vscode.workspace.workspaceFolders;
+    const result: vscode.Task[] = [];
+    if (!workspaceFolders || workspaceFolders.length === 0) {
+        return result;
+    }
 
     const fileName = activeDocumentPath();
     if (!fileName) {
@@ -57,7 +57,7 @@ async function getKusionTasks(): Promise<vscode.Task[]> {
 
     let theActiveWorkspaceFolder: vscode.WorkspaceFolder | undefined = undefined;
 
-    for(const workspaceFolder of workspaceFolders){
+    for (const workspaceFolder of workspaceFolders) {
         if (fileName.startsWith(workspaceFolder.uri.fsPath)) {
             theActiveWorkspaceFolder = workspaceFolder;
         }
@@ -66,7 +66,7 @@ async function getKusionTasks(): Promise<vscode.Task[]> {
     if (!theActiveWorkspaceFolder) {
         return result;
     }
-    
+
     const stackPath = getStackPath(fileName);
 
     if (!stackPath) {
@@ -87,52 +87,52 @@ async function getKusionTasks(): Promise<vscode.Task[]> {
         result.push(task);
     }
 
-	return result;
+    return result;
 }
 
 
-export function getStackPath(filepath: string):(string | undefined) {
-	const path = require("path");
-	var parentDir =  path.dirname(filepath);
-	const stackFilePath = path.join(parentDir, "stack.yaml");
-	
-	if (fs.existsSync(stackFilePath)) {
-		return parentDir;
-	}
-	return undefined;
+export function getStackPath(filepath: string): (string | undefined) {
+    const path = require("path");
+    var parentDir = path.dirname(filepath);
+    const stackFilePath = path.join(parentDir, "stack.yaml");
+
+    if (fs.existsSync(stackFilePath)) {
+        return parentDir;
+    }
+    return undefined;
 }
 
-export function activeDocumentPath () : (string | undefined) {
-	return vscode.window.activeTextEditor?.document.fileName;
+export function activeDocumentPath(): (string | undefined) {
+    return vscode.window.activeTextEditor?.document.fileName;
 }
 
 export const compileScript = (workdir: string) => {
-	return `kusion compile -w ${workdir}`;
+    return `kusion compile -w ${workdir}`;
 };
 
 export const applyScript = (workdir: string) => {
-	return `kusion apply -w ${workdir}`;
+    return `kusion apply -w ${workdir}`;
 };
 
 export const goldenPath = (stackPath: string) => {
-	const path = require("path");
-	return path.join(stackPath, "ci-test", "stdout.golden.yaml");
+    const path = require("path");
+    return path.join(stackPath, "ci-test", "stdout.golden.yaml");
 };
 
 export const compileSuccessMsg = (stackPath: string) => {
-	return `kusion compiled success, view results in: ${goldenPath(stackPath)}`;
+    return `kusion compiled success, view results in: ${goldenPath(stackPath)}`;
 };
 
 
-export const kusionCommands = new Map<string, (stackPath:string) => string> ([
+export const kusionCommands = new Map<string, (stackPath: string) => string>([
     [
-        'compile', 
+        'compile',
         (workdir: string) => {
             return `kusion compile -w ${workdir}; echo "${compileSuccessMsg(workdir)}"`; // todo: after task success, show success message
         }
     ],
     [
-        'apply', 
+        'apply',
         (workdir: string) => {
             return `kusion apply -w ${workdir} --watch --yes`;
         },

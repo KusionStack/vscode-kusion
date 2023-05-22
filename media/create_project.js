@@ -8,14 +8,14 @@
 
     const createButton = /** @type {HTMLElement} */ (document.getElementById('create'));
 
-    function getValues(){
-        var templateParams = {'ProjectConfig': {}};
+    function getValues() {
+        var templateParams = { 'ProjectConfig': {} };
         const projectNameId = 'ProjectName';
 
         elements = document.getElementsByTagName('input');
         for (var i = 0; i < elements.length; i++) {
             const elem = elements[i];
-            const value = elem.type && elem.type === 'number' ? elem.valueAsNumber: elem.value;
+            const value = elem.type && elem.type === 'number' ? elem.valueAsNumber : elem.value;
             if (elem.id === projectNameId) {
                 templateParams[projectNameId] = value;
             } else {
@@ -24,7 +24,7 @@
         }
         return JSON.stringify(templateParams);
     }
-    
+
 
     function submitForm() {
         vscode.postMessage({

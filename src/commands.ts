@@ -5,7 +5,7 @@ import * as dataPreview from './preview';
 import * as util from './util';
 import * as uri from 'vscode-uri';
 import * as stack from './stack';
-import {ensureKusion} from './installer';
+import { ensureKusion } from './installer';
 import * as createProject from './create-project';
 import * as liveDiff from './livediff';
 import * as operationView from './operation-view';
@@ -24,7 +24,7 @@ export function createAndRunTask(taskName: string, stackObj: stack.Stack) {
     vscode.tasks.executeTask(task);
 }
 
-function kusionCommandRun(commandName: string, currentStack: stack.Stack|undefined) {
+function kusionCommandRun(commandName: string, currentStack: stack.Stack | undefined) {
     if (currentStack === undefined) {
         return;
     }
@@ -34,11 +34,11 @@ function kusionCommandRun(commandName: string, currentStack: stack.Stack|undefin
     }
 }
 
-export function kusionPreCheckByUri(targetUri: vscode.Uri|undefined): stack.Stack | undefined {
+export function kusionPreCheckByUri(targetUri: vscode.Uri | undefined): stack.Stack | undefined {
     if (targetUri === undefined) {
         return;
     }
-    var resolvedUri : vscode.Uri = targetUri;
+    var resolvedUri: vscode.Uri = targetUri;
     if (targetUri.scheme === 'kusion') {
         // transform kusion uri to file
         resolvedUri = vscode.Uri.parse(`file://${targetUri.fsPath}`);
@@ -52,7 +52,7 @@ export function kusionPreCheckByUri(targetUri: vscode.Uri|undefined): stack.Stac
 }
 
 function kusionPreCheck(): stack.Stack | undefined {
-    var resource : vscode.Uri | undefined = util.activeTextEditorDocument()?.uri;
+    var resource: vscode.Uri | undefined = util.activeTextEditorDocument()?.uri;
     return kusionPreCheckByUri(resource);
 }
 
@@ -73,7 +73,7 @@ export function kusionDiffPreview(context: vscode.ExtensionContext) {
     if (!currentStack) {
         return;
     }
-    
+
     liveDiff.showDiff(context, currentStack);
 }
 
@@ -99,19 +99,21 @@ export function kusionConfirmApply(context: vscode.ExtensionContext) {
     }
     const modified = input.modified;
     const title = `This action will apply all the resources defined in the stack ${currentStack.name}.\nFullfill the stack name ${currentStack.name} to confirm`;
-    vscode.window.showInputBox({title: title, value: currentStack.name, placeHolder: currentStack.name, validateInput: (value): string | vscode.InputBoxValidationMessage | undefined => {
-        if (value !== currentStack.name) {
-            return {
-                message: `Stack Path mismatch: ${currentStack.name}`,
-                severity: 3
-            };
-        } else {
-            return {
-                message: 'Stack Path confirmed. Press Enter to Confirm or Press Esc to Cancel',
-                severity: 1
-            };
+    vscode.window.showInputBox({
+        title: title, value: currentStack.name, placeHolder: currentStack.name, validateInput: (value): string | vscode.InputBoxValidationMessage | undefined => {
+            if (value !== currentStack.name) {
+                return {
+                    message: `Stack Path mismatch: ${currentStack.name}`,
+                    severity: 3
+                };
+            } else {
+                return {
+                    message: 'Stack Path confirmed. Press Enter to Confirm or Press Esc to Cancel',
+                    severity: 1
+                };
+            }
         }
-    }}, undefined).then((input)=>{
+    }, undefined).then((input) => {
         if (input === currentStack.name) {
             operationView.showOperationDetail(context, currentStack);
             kusionCommandRun('apply', currentStack);
@@ -131,19 +133,21 @@ export async function kusionDestroy() {
             return;
         }
         const title = `This action will destroy all the resources defined in the stack ${currentStack.name}.\nFullfill the stack name ${currentStack.name} to confirm`;
-        vscode.window.showInputBox({title: title, value: currentStack.name, placeHolder: currentStack.name, validateInput: (value): string | vscode.InputBoxValidationMessage | undefined => {
-            if (value !== currentStack.name) {
-                return {
-                    message: `Stack Path mismatch: ${currentStack.name}`,
-                    severity: 3
-                };
-            } else {
-                return {
-                    message: 'Stack Path confirmed. Press Enter to Confirm or Press Esc to Cancel',
-                    severity: 1
-                };
+        vscode.window.showInputBox({
+            title: title, value: currentStack.name, placeHolder: currentStack.name, validateInput: (value): string | vscode.InputBoxValidationMessage | undefined => {
+                if (value !== currentStack.name) {
+                    return {
+                        message: `Stack Path mismatch: ${currentStack.name}`,
+                        severity: 3
+                    };
+                } else {
+                    return {
+                        message: 'Stack Path confirmed. Press Enter to Confirm or Press Esc to Cancel',
+                        severity: 1
+                    };
+                }
             }
-        }}, undefined).then((input)=>{
+        }, undefined).then((input) => {
             if (input === currentStack.name) {
                 kusionCommandRun('destroy', currentStack);
             }
@@ -151,12 +155,12 @@ export async function kusionDestroy() {
     }
 }
 
-export function kusionShowDataPreviewCommand() : void {
-    dataPreview.showDataPreview({sideBySide: false, locked: true});
+export function kusionShowDataPreviewCommand(): void {
+    dataPreview.showDataPreview({ sideBySide: false, locked: true });
 }
 
-export function kusionShowDataPreviewToSideCommand() : void {
-    dataPreview.showDataPreview({sideBySide: true, locked: true});
+export function kusionShowDataPreviewToSideCommand(): void {
+    dataPreview.showDataPreview({ sideBySide: true, locked: true });
 }
 
 export function kusionHelp(): void {
@@ -170,7 +174,7 @@ export function kusionHelp(): void {
         {
             label: kusionQuick,
             description: 'Get started to deliver applications with Kusion'
-            
+
         },
         {
             label: kclQuick,
@@ -180,7 +184,7 @@ export function kusionHelp(): void {
             label: kusionFeedback,
             description: 'Provide your feedback to help improve the product'
         }
-    ], {canPickMany: false, placeHolder: "Pick a guide to quick start your Kusion tour!"}).then((value)=> {
+    ], { canPickMany: false, placeHolder: "Pick a guide to quick start your Kusion tour!" }).then((value) => {
         if (value) {
             switch (value.label) {
                 case kusionQuick:

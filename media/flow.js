@@ -104,7 +104,7 @@
                 case "synced":
                     return "red";
                 default:
-                    return "black"; 
+                    return "black";
             }
         }
 
@@ -151,7 +151,7 @@
                     }
                     var most = arr[0];
                     for (var i = 1; i < arr.length; i++) {
-                        if ((min && arr[i] < most) || !min && arr[i] > most){
+                        if ((min && arr[i] < most) || !min && arr[i] > most) {
                             most = arr[i];
                         }
                     }
@@ -170,9 +170,9 @@
                         levelMap[id] = 0;
                         return 0;
                     }
-                     else {
+                    else {
                         const level = 1 + mostValue(
-                            resourceMap[id].dependsOn.map((function(item) {
+                            resourceMap[id].dependsOn.map((function (item) {
                                 return calculateLevel(item, resourceMap);
                             })), false
                         );
@@ -196,7 +196,7 @@
                     }
                 }
 
-                const maxLevel = mostValue(Object.keys(levelMap).map(key=>levelMap[key]), false);
+                const maxLevel = mostValue(Object.keys(levelMap).map(key => levelMap[key]), false);
                 // collect all the ids on each level from the levelMap.
                 // the resOnEachLevel contains a map of level and the resource ids list at the level.
                 const resOnEachLevel = {};
@@ -210,9 +210,9 @@
                 }
                 // sort the resources in each level. sort by the resource's simple name. generate a map of simple name and its index & total id count on its level
                 const resourceOrder = {};
-                for(let level in resOnEachLevel) {
+                for (let level in resOnEachLevel) {
                     ids = resOnEachLevel[level];
-                    simpleNames = ids.map((id)=>{return simpleName(resources[id]);});
+                    simpleNames = ids.map((id) => { return simpleName(resources[id]); });
                     sorted = sortStringArray(simpleNames);
                     for (let index in sorted) {
                         resourceOrder[sorted[index]] = {
@@ -228,8 +228,8 @@
                 for (let id in levelMap) {
                     const res = resources[id];
                     const simpleName = res.kind + '/' + res.name;
-                    const xAxis = 600.0/(maxLevel+1)*levelMap[id]+20;
-                    const yAxis = 450-450.0/(resourceOrder[simpleName]['total']+1)*resourceOrder[simpleName]['index']+20;
+                    const xAxis = 600.0 / (maxLevel + 1) * levelMap[id] + 20;
+                    const yAxis = 450 - 450.0 / (resourceOrder[simpleName]['total'] + 1) * resourceOrder[simpleName]['index'] + 20;
 
                     var resourceNode = {
                         name: simpleName,
@@ -244,18 +244,18 @@
                     nodeList.push(resourceNode);
                     coordinateMap[simpleName] = [xAxis, yAxis];
                 }
-                
+
 
                 // generate edge list in the echarts
-                edgeList = originalEdgeList.map((e)=>{
+                edgeList = originalEdgeList.map((e) => {
                     return {
                         coords: [
-                            coordinateMap[e['from']], 
+                            coordinateMap[e['from']],
                             coordinateMap[e['to']]
                         ]
                     };
                 });
-                
+
                 option.series[0].data = nodeList;
                 option.series[1].data = edgeList;
                 console.log(option.series);
@@ -265,33 +265,33 @@
     });
 
     function simpleName(res) {
-        return res.kind+'/'+res.name;
+        return res.kind + '/' + res.name;
     }
 
     // quick sort
     function sortStringArray(arr) {
         if (arr.length <= 1) {
-          return arr;
+            return arr;
         }
-      
+
         const pivotIndex = Math.floor(arr.length / 2);
         const pivot = arr[pivotIndex];
         const left = [];
         const right = [];
-      
+
         for (let i = 0; i < arr.length; i++) {
-          if (i === pivotIndex) {
-            continue;
-          }
-      
-          if (arr[i] < pivot) {
-            left.push(arr[i]);
-          } else {
-            right.push(arr[i]);
-          }
+            if (i === pivotIndex) {
+                continue;
+            }
+
+            if (arr[i] < pivot) {
+                left.push(arr[i]);
+            } else {
+                right.push(arr[i]);
+            }
         }
-      
+
         return [...sortStringArray(left), pivot, ...sortStringArray(right)];
-      }
-      
+    }
+
 }());

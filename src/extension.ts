@@ -7,7 +7,7 @@ import * as util from './util';
 import * as quickstart from './quickstart/setup';
 import * as liveDiff from './livediff';
 import * as stack from './stack';
-import {ensureKusion} from './installer';
+import { ensureKusion } from './installer';
 
 let kusionTaskProvider: vscode.Disposable | undefined;
 
@@ -31,9 +31,9 @@ export async function activate(context: vscode.ExtensionContext) {
 	const kusionDestroy = vscode.commands.registerCommand('kusion.destroy', commands.kusionDestroy);
 	const kusionHelp = vscode.commands.registerCommand('kusion.help', commands.kusionHelp);
 	const kusionCreateProject = vscode.commands.registerCommand('kusion.createProject', () => { commands.kusionCreateProject(context); });
-	const kusionConfirmApply = vscode.commands.registerCommand('kusion.confirmApply', ()=> { commands.kusionConfirmApply(context); });
-	const kusionInstall = vscode.commands.registerCommand('kusion.checkInstall', ()=>{
-		if (ensureKusion()){
+	const kusionConfirmApply = vscode.commands.registerCommand('kusion.confirmApply', () => { commands.kusionConfirmApply(context); });
+	const kusionInstall = vscode.commands.registerCommand('kusion.checkInstall', () => {
+		if (ensureKusion()) {
 			vscode.window.showInformationMessage('Kusion is already installed.');
 		}
 	});
@@ -48,13 +48,13 @@ export async function activate(context: vscode.ExtensionContext) {
 		kusionInstall,
 		kusionConfirmApply
 	);
-	
+
 	vscode.window.onDidChangeActiveTextEditor((editor) => {
 		const inKusionStack = util.inKusionStack(editor?.document.uri);
 		util.setInKusionStack(inKusionStack);
 		liveDiff.updateKusionLiveDiffEditorStatus(editor);
 	});
-	vscode.workspace.onDidOpenTextDocument((document)=>{
+	vscode.workspace.onDidOpenTextDocument((document) => {
 		util.setInKusionStack(util.inKusionStack(document.uri));
 	});
 
