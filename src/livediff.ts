@@ -41,32 +41,42 @@ export async function showDiff(context: vscode.ExtensionContext, currentStack: s
         viewColumn: column
     };
 
-    // runtime/status: kusion:${stackPath}?language=yaml#runtime
-    // spec: kusion:${stackPath}?language=yaml#spec
-    const previewResult: LiveDiffPreview = await liveDiff(currentStack);
-    const registration = vscode.workspace.registerTextDocumentContentProvider('kusion', {
-        provideTextDocumentContent(uri) {
-          switch (uri.fragment) {
-              case 'runtime':
-                  return yaml.stringify(previewResult.status);
-              case 'spec':
-                  return yaml.stringify(previewResult.spec);
-              default:
-                  return 'default';
-          }
-        }
+    vscode.window.withProgress({
+        location: vscode.ProgressLocation.Notification,
+        title: "Loading Stack Status from Runtime...",
+        cancellable: false
+    }, (progress) => {
+        return new Promise<void>((resolve, reject) => {
+            // runtime/status: kusion:${stackPath}?language=yaml#runtime
+            // spec: kusion:${stackPath}?language=yaml#spec
+            liveDiff(currentStack).then((previewResult: LiveDiffPreview) => {
+                resolve();
+                const registration = vscode.workspace.registerTextDocumentContentProvider('kusion', {
+                    provideTextDocumentContent(uri) {
+                        switch (uri.fragment) {
+                            case 'runtime':
+                                return yaml.stringify(previewResult.status);
+                            case 'spec':
+                                return yaml.stringify(previewResult.spec);
+                            default:
+                                return 'default';
+                        }
+                    }
+                });
+                vscode.commands.executeCommand('vscode.diff', 
+                    vscode.Uri.parse(`kusion:${vscode.Uri.joinPath(currentStack.uri, 'status').fsPath}?language=yaml#runtime`), 
+                    vscode.Uri.parse(`kusion:${vscode.Uri.joinPath(currentStack.uri, 'spec').fsPath}?language=yaml#spec`),
+                    `${currentStack.name} (Runtime) ↔ (Spec)`, 
+                editorOptions).then(
+                    value => {
+                        value;
+                        registration.dispose();
+                        util.setContextValue(KUSION_LIVE_DIFF_EDITOR_OPEN, true);
+                    }
+                );
+            });
+        });
     });
-    vscode.commands.executeCommand('vscode.diff', 
-      vscode.Uri.parse(`kusion:${vscode.Uri.joinPath(currentStack.uri, 'status').fsPath}?language=yaml#runtime`), 
-      vscode.Uri.parse(`kusion:${vscode.Uri.joinPath(currentStack.uri, 'spec').fsPath}?language=yaml#spec`),
-      `${currentStack.name} (Runtime) ↔ (Spec)`, 
-      editorOptions).then(
-        value => {
-            value;
-            registration.dispose();
-            util.setContextValue(KUSION_LIVE_DIFF_EDITOR_OPEN, true);
-        }
-    );
 }
 
 export function livePreview(currentStack: stack.Stack): Promise<ChangeOrder> {
