@@ -1,10 +1,7 @@
 import * as vscode from 'vscode';
-import * as uri from 'vscode-uri';
-import * as util from './util';
 import * as stack from './stack';
 import { getNonce } from "./utilities/getNonce";
 import * as liveDiff from './livediff';
-import * as yaml from 'yaml';
 
 const viewType = 'kusion.showOperationDetail';
 
@@ -81,13 +78,30 @@ export async function showOperationDetail(context: vscode.ExtensionContext, curr
     </body>
 </html>`;
     webview.webview.html = html;
+    // set the initial operation info
     webview.webview.postMessage({ command: 'init', data: new OperationInfo(currentStack.project.name, currentStack.name, StackStatus.syncing) });
+
+    const p = new Promise<void>(async resolve => {
+        let refreshIntervalId = setInterval(()=> {
+            const afterReady = ()=> {
+                // stop looping after minikube start ready
+                clearInterval(refreshIntervalId);
+                resolve();
+            };
+            checkStackSynced(currentStack, webview.webview, afterReady);
+        }, 3000);
+    });
+}
+
+async function checkStackSynced(currentStack: stack.Stack, webview: vscode.Webview, afterReady: ()=>void) {
     // get live diff preview result
     const liveDiffPreview = await liveDiff.livePreview(currentStack);
     // update the resources status ans resource map
     const operationInfo = getOperationInfo(currentStack.project.name, currentStack.name,liveDiffPreview);
-    const operationMsg = JSON.stringify(operationInfo);
-    webview.webview.postMessage({ command: 'update', data: operationMsg });
+    webview.postMessage({ command: 'update', data: operationInfo });
+    if (operationInfo.status === StackStatus.synced) {
+        afterReady();
+    }
 }
 
 function getOperationInfo(project: string, stack: string, changeOrder: liveDiff.ChangeOrder):  OperationInfo {

@@ -95,28 +95,49 @@
     // Handle the message inside the webview
     window.addEventListener('message', event => {
         const message = event.data; // The JSON data our extension sent
+        const statusSpan = /** @type {HTMLElement} */ (document.getElementById('statusSpan'));
+
+        function getStackStatusColor(status) {
+            switch (status) {
+                case "syncing":
+                    return "#FFA500";
+                case "synced":
+                    return "red";
+                default:
+                    return "black"; 
+            }
+        }
 
         switch (message.command) {
             case 'init':
                 option.title.text = "Stack Status:" + " " + message.data.stack;
-                const statusSpan = /** @type {HTMLElement} */ (document.getElementById('statusSpan'));
-                statusSpan.innerText = message.data.status;
+                statusSpan.innerText = message.data?.status;
+                statusSpan.style.color = getStackStatusColor(message.data?.status);
                 myChart.setOption(option);
+                break;
             case 'update':
-                text = message.data;
-                // the messgae.data is a json string stringified from a list of resources
-                console.log(text);
-                // the json string is like:
-                // {
-                //    "project": "$project name", "stack": "$stack name", "status": "$status", 
-                //    "resourceMap": {
-                //        "$id": {
-                //            "id": "$id", "name": "$name", "apiVersion": "$apiVersion", "kind": "$kind", "dependsOn": [],
-                //            "status": "$resource status"
-                //        }
-                //    }
+                operationInfo = message.data;
+                console.log(operationInfo);
+                // the messgae.data is of class OperationInfo
+                // the message.data is like:
+                // class OperationInfo {
+                //     project: string;
+                //     stack: string;
+                //     status: StackStatus;
+                //     resourceMap: {[name:string]: K8sResourceChange};
                 // }
-                operationInfo = JSON.parse(text);
+                // class K8sResourceChange {
+                //     id: string;
+                //     name: string;
+                //     apiVersion: string;
+                //     kind: string;
+                //     namespace: string;
+                //     status: ResourceStatus;
+                //     dependsOn: string[] = [];
+                // }
+                // update the stack status info
+                statusSpan.innerText = operationInfo?.status;
+
                 if (!operationInfo.resourceMap) {
                     return;
                 }
@@ -215,7 +236,10 @@
                         symbolSize: 50,
                         symbol: 'circle',
                         draggable: false,
-                        value: [xAxis, yAxis]
+                        value: [xAxis, yAxis],
+                        itemStyle: {
+                            color: res.status === 'synced' ? 'green' : 'gray'
+                        }
                     };
                     nodeList.push(resourceNode);
                     coordinateMap[simpleName] = [xAxis, yAxis];
