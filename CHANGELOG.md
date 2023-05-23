@@ -60,3 +60,13 @@ All notable changes to the "kusion" extension will be documented in this file.
 - support live-diff preview between real state and desired state of a stack: right click and select "Preview Live Diff and Apply" on the stack's main file.
 - support apply button on the right corner of the live-diff page.
 - add stack status page after applying changes.
+
+## [0.0.15] - 2023-5-23
+
+### Updated
+
+- create project from template webview: adapt to user's VS Code theme color.
+
+### Fixed
+
+- live diff preview: stop showing the progress bar after the `kusion preview` command failed.
