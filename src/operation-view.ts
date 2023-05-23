@@ -95,13 +95,20 @@ export async function showOperationDetail(context: vscode.ExtensionContext, curr
 
 async function checkStackSynced(currentStack: stack.Stack, webview: vscode.Webview, afterReady: () => void) {
     // get live diff preview result
-    const liveDiffPreview = await liveDiff.livePreview(currentStack);
-    // update the resources status ans resource map
-    const operationInfo = getOperationInfo(currentStack.project.name, currentStack.name, liveDiffPreview);
-    webview.postMessage({ command: 'update', data: operationInfo });
-    if (operationInfo.status === StackStatus.synced) {
+    liveDiff.livePreview(currentStack).then((liveDiffPreview)=>{
+        // update the resources status ans resource map
+        const operationInfo = getOperationInfo(currentStack.project.name, currentStack.name, liveDiffPreview);
+        webview.postMessage({ command: 'update', data: operationInfo });
+        if (operationInfo.status === StackStatus.synced) {
+            afterReady();
+        }
+    },
+    (reason)=> {
+        // if livePreview failed, stop checking and report error
+        vscode.window.showErrorMessage(reason);
         afterReady();
-    }
+    });
+    
 }
 
 function getOperationInfo(project: string, stack: string, changeOrder: liveDiff.ChangeOrder): OperationInfo {
