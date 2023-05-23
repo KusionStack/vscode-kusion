@@ -74,6 +74,9 @@ export async function showDiff(context: vscode.ExtensionContext, currentStack: s
               util.setContextValue(KUSION_LIVE_DIFF_EDITOR_OPEN, true);
             }
           );
+      },
+      (reason) =>  {
+        reject(reason);
       });
     });
   });
@@ -124,6 +127,8 @@ export function liveDiff(currentStack: stack.Stack): Promise<LiveDiffPreview> {
         }
       }
       resolve(new LiveDiffPreview(status, spec));
+    }, (reason)=>{
+      reject(reason);
     });
   });
 }
