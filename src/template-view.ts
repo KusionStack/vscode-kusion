@@ -274,6 +274,7 @@ export class CreateFromTemplatePanel {
 
 		// Use a nonce to only allow specific scripts to be run
 		const nonce = getNonce();
+		const light = vscode.window.activeColorTheme.kind in [1, 4];
 
 		const html = /*html*/ `<!DOCTYPE html>
         <html lang="en">
@@ -296,7 +297,7 @@ export class CreateFromTemplatePanel {
         <body>
 			<div class="container"><h1>Create Project</h1></div>
             <form id="myForm" class="needs-validation" novalidate="">
-            ${generateForm(template)}
+            ${generateForm(template, light)}
         
             <div class="container"><button id="create" type="submit" class="btn btn-primary" >Create Project</button></div>
             </form>
@@ -308,18 +309,19 @@ export class CreateFromTemplatePanel {
 	}
 }
 
-function generateForm(template: InitTemplateData) {
-	var projectBlock = generateLabelInputBlock("ProjectName", KclType.string, template.projectName, template.description);
+function generateForm(template: InitTemplateData, lightTheme: boolean = true): string {
+	var projectBlock = generateLabelInputBlock("ProjectName", KclType.string, template.projectName, template.description, lightTheme);
 
 	for (const attr of template.projectFields) {
-		const attrBlock = generateLabelInputBlock(attr.name, attr.type, attr.default, attr.description);
+		const attrBlock = generateLabelInputBlock(attr.name, attr.type, attr.default, attr.description, lightTheme);
 		projectBlock = projectBlock.concat(attrBlock);
 	}
 	return projectBlock;
 }
 
-function generateLabelInputBlock(label: string, type: KclType, defaultValue: string, description: string): string {
-	return `<div class="form-group">
+function generateLabelInputBlock(label: string, type: KclType, defaultValue: string, description: string, lightTheme: boolean = true): string {
+	const formGroupClass = lightTheme ? "form-group-light" : "form-group-dark";
+	return `<div class="${formGroupClass}">
     <label for="${label}">${label}</label>
 	<small id="${label}Help" class="form-text text-muted">${description}</small>
     <input type="${type === KclType.int ? "number" : "text"}" class="form-control" id="${label}" aria-describedby="${label}Help" value="${defaultValue}" placeholder="${defaultValue}">
