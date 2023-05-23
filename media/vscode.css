@@ -90,12 +90,19 @@ textarea::placeholder {
 	color: var(--vscode-input-placeholderForeground);
 }
 
-.form-group {
+.form-group-light {
 	background-color: #FFF;
 	padding: 10px;
 }
-.form-group:hover {
+.form-group-light:hover {
 	background-color: #F0F0F0;
+}
+.form-group-dark {
+	background-color: #1E1E1E;
+	padding: 10px;
+}
+.form-group-dark:hover {
+	background-color: #2D2D2D;
 }
 
 form label, form input, form small {
