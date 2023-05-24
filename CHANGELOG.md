@@ -70,3 +70,9 @@ All notable changes to the "kusion" extension will be documented in this file.
 ### Fixed
 
 - live diff preview: stop showing the progress bar after the `kusion preview` command failed.
+
+## [0.0.16] - 2023-5-24
+
+### Fixed
+
+- create project from template: support loading templates from templates/internal under the kusion installation location.
