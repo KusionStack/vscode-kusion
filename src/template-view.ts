@@ -4,6 +4,9 @@ import { getNonce } from "./utilities/getNonce";
 import { getWebviewOptions } from './utilities/getWebviewOptions';
 import * as util from './util';
 import * as output from './output';
+import * as installer from './installer';
+import * as fs from 'fs';
+import * as path from 'path';
 
 export type InitTemplateData = {
 	name: string
@@ -38,6 +41,16 @@ export function goToTemplateSetting() {
 
 export function getTemplates(): Promise<Map<string, InitTemplateData>> {
 	const templateLocations = vscode.workspace.getConfiguration('kusion.templates').get('location') as string[];
+	const kusionLocation = installer.kusionLocation();
+	if (kusionLocation) {
+		const kusionDir = vscode.Uri.parse(path.dirname(path.dirname(kusionLocation.toString())));
+		const internalTemplatesUri = vscode.Uri.joinPath(kusionDir, 'templates', 'internal');
+		// ensure internalTemplates path exists
+		if (!templateLocations.includes(internalTemplatesUri.toString()) && fs.existsSync(internalTemplatesUri.path)) {
+			templateLocations.push(internalTemplatesUri.toString());
+		}
+	}
+	
 	if (!templateLocations || templateLocations.length === 0) {
 		return new Promise<Map<string, InitTemplateData>>((resolve, reject) => {
 			resolve(new Map<string, InitTemplateData>());

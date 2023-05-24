@@ -31,6 +31,10 @@ function kusionInstalled(): boolean {
     return shell.which("kusion") ? true : false;
 }
 
+export function kusionLocation(): string | null {
+    return shell.which("kusion");
+}
+
 class InstallTool {
     readonly name: string;
     readonly commands: string[];
