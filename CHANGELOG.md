@@ -76,3 +76,9 @@ All notable changes to the "kusion" extension will be documented in this file.
 ### Fixed
 
 - create project from template: support loading templates from templates/internal under the kusion installation location.
+
+## [0.0.17] - 2023-5-25
+
+### Fixed
+
+- live diff preview: ensure refreshing the live diff preview tab before showing.
