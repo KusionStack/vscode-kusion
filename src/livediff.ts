@@ -32,6 +32,14 @@ export function updateKusionLiveDiffEditorStatus(editor: vscode.TextEditor | und
   }
 }
 
+function getSpecPath(stackUri: vscode.Uri): string {
+  return vscode.Uri.joinPath(stackUri, 'spec').fsPath;
+}
+
+function getStatusPath(stackUri: vscode.Uri): string {
+  return vscode.Uri.joinPath(stackUri, 'status').fsPath;
+}
+
 export async function showDiff(context: vscode.ExtensionContext, currentStack: stack.Stack) {
   const column = vscode.window.activeTextEditor ? vscode.window.activeTextEditor.viewColumn : undefined;
 
@@ -63,9 +71,22 @@ export async function showDiff(context: vscode.ExtensionContext, currentStack: s
             }
           }
         });
+        const statusUri = vscode.Uri.parse(`kusion:${getStatusPath(currentStack.uri)}?language=yaml#runtime`);
+        const specUri = vscode.Uri.parse(`kusion:${getSpecPath(currentStack.uri)}?language=yaml#spec`);
+        // check if there are diff tabs that represents the same stack's diff info, close it first to avoid being directly reused by vscode
+        const diffEditorTabsToClose: vscode.Tab[] = [];
+        for (const tab of vscode.window.tabGroups.all.map(g => g.tabs).flat()) {
+          const { input } = tab;
+          if (input instanceof vscode.TabInputTextDiff) {
+            if (input.modified.scheme === 'kusion' && input.modified.fsPath === specUri.fsPath) {
+              diffEditorTabsToClose.push(tab);
+            }
+          }
+        }
+        vscode.window.tabGroups.close(diffEditorTabsToClose);
         vscode.commands.executeCommand('vscode.diff',
-          vscode.Uri.parse(`kusion:${vscode.Uri.joinPath(currentStack.uri, 'status').fsPath}?language=yaml#runtime`),
-          vscode.Uri.parse(`kusion:${vscode.Uri.joinPath(currentStack.uri, 'spec').fsPath}?language=yaml#spec`),
+          statusUri, 
+          specUri,
           `${currentStack.name} (Runtime) ↔ (Spec)`,
           editorOptions).then(
             value => {
