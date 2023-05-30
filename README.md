@@ -20,7 +20,7 @@ As the vscode-kusion extension installed to our VS Code, let's follow the `Getti
 
 We can find Kusion walkthrough on the VS Code Welcome page. (Or we could open the Command Palatte and type `walkthrough`, then type `kusion` to locate Kusion walkthrough.)
 
-![](https://github.com/KusionStack/vscode-kusion/tree/main/images/walkthrough.gif)
+![](https://github.com/KusionStack/vscode-kusion/blob/main/images/walkthrough.gif?raw=true)
 
 1. **Get your Environment Ready**
 
@@ -36,7 +36,7 @@ We can find Kusion walkthrough on the VS Code Welcome page. (Or we could open th
 
     We could quickly create a new kusion project from archetype. To do that, click the `Create Kusion Project` button on the walkthrough (or, type `Kusion: Create` in the Command Palatte), and select a project template(For example using the `code-city` template we could deploy an application to visualize software as 3D cities).
 
-    ![](https://github.com/KusionStack/vscode-kusion/tree/main/images/create-project.gif)
+    ![](https://github.com/KusionStack/vscode-kusion/blob/main/images/create-project.gif?raw=true)
 
 4. **Explore Your Project and Configurations**
     Now let's open our kusion project that we previously created and browse the configuration code
@@ -48,13 +48,13 @@ We can find Kusion walkthrough on the VS Code Welcome page. (Or we could open th
 6. **Apply the Application Changes**
     Then if the live diff is as expected, we apply the changes to the runtime by clicking the 'Apply' button to confirm to apply.
 
-    ![](https://github.com/KusionStack/vscode-kusion/tree/main/images/config-diff-apply.gif)
+    ![](https://github.com/KusionStack/vscode-kusion/blob/main/images/config-diff-apply.gif?raw=true)
 
 ## Ask for Help and Feedback
 
 If the extension isn't working as you expect, please reach out to us by [filing an issue](https://github.com/KusionStack/vscode-kusion/issues/new/choose). You can also raise an issue by typing `Kusion: Help` in the Command Palatte from within the VS Code.
 
-![](https://github.com/KusionStack/vscode-kusion/tree/main/images/raise-issue.gif)
+![](https://github.com/KusionStack/vscode-kusion/blob/main/images/raise-issue.gif?raw=true)
 
 ## Contributing
 
