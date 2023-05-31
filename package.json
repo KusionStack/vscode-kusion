@@ -178,12 +178,6 @@
         "title": "Create Kusion Project From Archetype"
       },
       {
-        "command": "kusion.gotoFile",
-        "category": "Kusion",
-        "title": "Go To Source File",
-        "icon": "$(go-to-file)"
-      },
-      {
         "command": "kusion.confirmApply",
         "category": "Kusion",
         "title": "Confirm Apply",
@@ -195,11 +189,6 @@
         {
           "command": "kusion.showPreviewToSide",
           "when": "editorLangId == KCL && inKusionStack",
-          "group": "navigation"
-        },
-        {
-          "command": "kusion.gotoFile",
-          "when": "inKusionLiveDiff",
           "group": "navigation"
         },
         {
