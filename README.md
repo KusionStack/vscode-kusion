@@ -39,6 +39,7 @@ We can find Kusion walkthrough on the VS Code Welcome page. (Or we could open th
     ![](https://github.com/KusionStack/vscode-kusion/blob/main/images/create-project.gif?raw=true)
 
 4. **Preview**
+
     Now let's preview the yaml representation of our Config previously created by clicking the data preview button or type and select `Kusion: Open Data Preview To the Side`.
 
     ![](https://github.com/KusionStack/vscode-kusion/blob/main/images/data-preview.gif?raw=true)
