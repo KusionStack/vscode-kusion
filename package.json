@@ -77,7 +77,7 @@
           {
             "id": "kusion.walkthrough.liveDiff",
             "title": "Verify the Resource Changes to be made",
-            "description": "As all the configurations prepared, before making changes to the runtime, let's preview and check the live diff between the application's realtime status and the spec. You can check the resource changes by right clicking 'Preview Live Diff and Apply' on the stack's configuration file.",
+            "description": "As all the configurations prepared, before making changes to the runtime, let's preview and check the live diff between the application's realtime status and the spec. You can check the resource changes by right clicking 'Diff with Runtime and Apply' on the stack's configuration file.",
             "media": {
               "markdown": "media/walkthroughs/live-diff.md"
             }
@@ -165,7 +165,7 @@
       {
         "command": "kusion.apply",
         "category": "Kusion",
-        "title": "Preview Live Diff and Apply"
+        "title": "Diff with Runtime and Apply"
       },
       {
         "command": "kusion.help",

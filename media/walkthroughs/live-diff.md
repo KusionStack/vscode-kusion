@@ -1,3 +1,3 @@
-## Preview Live Diff between the Stack's Status and Spec
+## Diff with Runtime
 
 ![](images/live-diff.gif)
