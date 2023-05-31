@@ -24,34 +24,47 @@ export function showDataPreview(dataPreviewSettings: ShowDataPreviewSettings) {
     const root = util.kclWorkspaceRoot(resource);
     const stackUri = uri.Utils.dirname(resource);
     const stackFullName = util.getStackFullName(stackUri, root);
-    compileStackData(stackUri).then(async (data) => {
-        const webview = vscode.window.createWebviewPanel(
-            viewType,
-            getViewTitle(stackFullName, locked),
-            previewColumn,
-            { enableFindWidget: true, enableScripts: true }
-        );
-        var extensionContext = vscode.extensions.getExtension("KusionStack.kusion");
-        if (extensionContext?.extensionUri) {
-            var iconPath = {
-                dark: vscode.Uri.joinPath(extensionContext.extensionUri, 'images', 'preview-dark.svg'),
-                light: vscode.Uri.joinPath(extensionContext.extensionUri, 'images', 'preview-light.svg'),
-            };
-            webview.iconPath = iconPath;
-        }
-        const darkHighlighter = await shiki.getHighlighter({
-            theme: 'min-dark'
-        });
-        const lightHighlighter = await shiki.getHighlighter({
-            theme: 'min-light'
-        });
-        const darkHtml = renderInShikiTheme(data, darkHighlighter);
-        const lightHtml = renderInShikiTheme(data, lightHighlighter);
 
-        webview.webview.html = vscode.window.activeColorTheme.kind in [1, 4] ? lightHtml : darkHtml;
-
-        vscode.window.onDidChangeActiveColorTheme((theme) => {
-            webview.webview.html = theme.kind in [1, 4] ? lightHtml : darkHtml;
+    vscode.window.withProgress({
+        location: vscode.ProgressLocation.Notification,
+        title: "Generating stack configuration in YAML...",
+        cancellable: false
+        }, (progress) => {
+        return new Promise<void>((resolve, reject) => {
+            compileStackData(stackUri).then(async (data) => {
+                resolve();
+                const webview = vscode.window.createWebviewPanel(
+                    viewType,
+                    getViewTitle(stackFullName, locked),
+                    previewColumn,
+                    { enableFindWidget: true, enableScripts: true }
+                );
+                var extensionContext = vscode.extensions.getExtension("KusionStack.kusion");
+                if (extensionContext?.extensionUri) {
+                    var iconPath = {
+                        dark: vscode.Uri.joinPath(extensionContext.extensionUri, 'images', 'preview-dark.svg'),
+                        light: vscode.Uri.joinPath(extensionContext.extensionUri, 'images', 'preview-light.svg'),
+                    };
+                    webview.iconPath = iconPath;
+                }
+                const darkHighlighter = await shiki.getHighlighter({
+                    theme: 'min-dark'
+                });
+                const lightHighlighter = await shiki.getHighlighter({
+                    theme: 'min-light'
+                });
+                const darkHtml = renderInShikiTheme(data, darkHighlighter);
+                const lightHtml = renderInShikiTheme(data, lightHighlighter);
+        
+                webview.webview.html = vscode.window.activeColorTheme.kind in [1, 4] ? lightHtml : darkHtml;
+        
+                vscode.window.onDidChangeActiveColorTheme((theme) => {
+                    webview.webview.html = theme.kind in [1, 4] ? lightHtml : darkHtml;
+                });
+            },
+            (reason) => {
+                reject(reason);
+            });
         });
     });
 
