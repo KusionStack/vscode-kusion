@@ -82,3 +82,16 @@ All notable changes to the "kusion" extension will be documented in this file.
 ### Fixed
 
 - live diff preview: ensure refreshing the live diff preview tab before showing.
+
+## [0.0.18] - 2023-5-31
+
+### Updated
+
+- change the `Preview Live Diff and Apply` menu item title to `Diff with Runtime and Apply`.
+- Show Data Preview: 
+  - remove dependency on kcl.
+  - show progress notification before the YAML output is generated.
+
+### Fixed
+
+- remove the `go-to-file` icon on the Runtime Diff page.
