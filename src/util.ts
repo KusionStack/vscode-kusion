@@ -82,6 +82,11 @@ export const settingsPath = (stackPath: string) => {
     return p.join(stackPath, 'ci-test', 'settings.yaml');
 };
 
+export const goldenPath = (stackPath: string) => {
+    const p = require('path');
+    return p.join(stackPath, 'ci-test', 'stdout.golden.yaml');
+};
+
 export const kclYamlPath = (stackPath: string) => {
     const p = require('path');
     return p.join(stackPath, 'kcl.yaml');
