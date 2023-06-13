@@ -6,8 +6,8 @@ import * as commands from "./commands";
 import * as util from './util';
 import * as quickstart from './quickstart/setup';
 import * as liveDiff from './livediff';
-import * as stack from './stack';
 import { ensureKusion } from './installer';
+import * as projects from './project-tree';
 
 let kusionTaskProvider: vscode.Disposable | undefined;
 
@@ -22,6 +22,9 @@ export async function activate(context: vscode.ExtensionContext) {
 	// get workspaceRoot, if there's no opening workspace, just resturn.
 	const workspaceRoot = (vscode.workspace.workspaceFolders && (vscode.workspace.workspaceFolders.length > 0))
 		? vscode.workspace.workspaceFolders[0].uri.fsPath : undefined;
+
+	const kusionProjectListProvider = new projects.ProjectListProvider();
+	vscode.window.registerTreeDataProvider('kusionProjects', kusionProjectListProvider);
 
 	kusionTaskProvider = vscode.tasks.registerTaskProvider(kusion_task_provider.KusionTaskProvider.kusionType, new kusion_task_provider.KusionTaskProvider(workspaceRoot));
 	const kusionDataPreview = vscode.commands.registerCommand('kusion.showPreview', commands.kusionShowDataPreviewCommand);

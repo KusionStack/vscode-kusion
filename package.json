@@ -102,6 +102,23 @@
         ]
       }
     ],
+    "views": {
+      "kusionExplorer": [
+        {
+          "id": "kusionProjects",
+          "name": "Projects"
+        }
+      ]
+    },
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "kusionExplorer",
+          "title": "Kusion",
+          "icon": "images/kusion_k.png"
+        }
+      ]
+    },
     "taskDefinitions": [
       {
         "type": "kusion",

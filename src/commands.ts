@@ -4,13 +4,13 @@ import * as quickstart from './quickstart/setup';
 import * as dataPreview from './preview';
 import * as util from './util';
 import * as uri from 'vscode-uri';
-import * as stack from './stack';
+import * as ocmp from './ocmp';
 import { ensureKusion } from './installer';
 import * as createProject from './create-project';
 import * as liveDiff from './livediff';
 import * as operationView from './operation-view';
 
-export function createAndRunTask(taskName: string, stackObj: stack.Stack) {
+export function createAndRunTask(taskName: string, stackObj: ocmp.Stack) {
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
     const target = vscode.workspace.workspaceFolders![0]; // safe, see extension.ts activate()
     const task = tasks.buildKusionTask(
@@ -24,7 +24,7 @@ export function createAndRunTask(taskName: string, stackObj: stack.Stack) {
     vscode.tasks.executeTask(task);
 }
 
-function kusionCommandRun(commandName: string, currentStack: stack.Stack | undefined) {
+function kusionCommandRun(commandName: string, currentStack: ocmp.Stack | undefined) {
     if (currentStack === undefined) {
         return;
     }
@@ -34,7 +34,7 @@ function kusionCommandRun(commandName: string, currentStack: stack.Stack | undef
     }
 }
 
-export function kusionPreCheckByUri(targetUri: vscode.Uri | undefined): stack.Stack | undefined {
+export function kusionPreCheckByUri(targetUri: vscode.Uri | undefined): ocmp.Stack | undefined {
     if (targetUri === undefined) {
         return;
     }
@@ -48,10 +48,10 @@ export function kusionPreCheckByUri(targetUri: vscode.Uri | undefined): stack.St
     }
     const root = util.kclWorkspaceRoot(resolvedUri);
     const stackUri = uri.Utils.dirname(resolvedUri);
-    return new stack.Stack(stackUri, root);
+    return new ocmp.Stack(stackUri, root);
 }
 
-function kusionPreCheck(): stack.Stack | undefined {
+function kusionPreCheck(): ocmp.Stack | undefined {
     var resource: vscode.Uri | undefined = util.activeTextEditorDocument()?.uri;
     return kusionPreCheckByUri(resource);
 }
@@ -132,12 +132,12 @@ export async function kusionDestroy() {
         if (currentStack === undefined) {
             return;
         }
-        const title = `This action will destroy all the resources defined in the stack ${currentStack.name}.\nFullfill the stack name ${currentStack.name} to confirm`;
+        const title = `This action will destroy all the resources defined in the stack ${currentStack.fullName}.\nFullfill the stack name ${currentStack.fullName} to confirm`;
         vscode.window.showInputBox({
-            title: title, value: currentStack.name, placeHolder: currentStack.name, validateInput: (value): string | vscode.InputBoxValidationMessage | undefined => {
-                if (value !== currentStack.name) {
+            title: title, value: currentStack.fullName, placeHolder: currentStack.fullName, validateInput: (value): string | vscode.InputBoxValidationMessage | undefined => {
+                if (value !== currentStack.fullName) {
                     return {
-                        message: `Stack Path mismatch: ${currentStack.name}`,
+                        message: `Stack Path mismatch: ${currentStack.fullName}`,
                         severity: 3
                     };
                 } else {
@@ -148,7 +148,7 @@ export async function kusionDestroy() {
                 }
             }
         }, undefined).then((input) => {
-            if (input === currentStack.name) {
+            if (input === currentStack.fullName) {
                 kusionCommandRun('destroy', currentStack);
             }
         });
@@ -167,7 +167,7 @@ export function kusionHelp(): void {
     const kusionQuick = 'Kusion Quick Start Guide';
     const kclQuick = 'KCL Quick Start Guide';
     const kusionFeedback = 'Feedback';
-    const kusionQuickUri = 'https://kusionstack.io/docs/user_docs/getting-started/';
+    const kusionQuickUri = 'https://kusionocmp.io/docs/user_docs/getting-started/';
     const kclQuickUri = 'https://kcl-lang.io/docs/user_docs/getting-started/kcl-quick-start';
     const kusionFeedbackUri = 'https://github.com/KusionStack/vscode-kusion/issues/new/choose';
     vscode.window.showQuickPick([

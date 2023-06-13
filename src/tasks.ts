@@ -5,7 +5,7 @@
 import * as path from 'path';
 import * as fs from 'fs';
 import * as vscode from 'vscode';
-import * as stack from './stack';
+import * as stack from './ocmp';
 
 export class KusionTaskProvider implements vscode.TaskProvider {
     static kusionType = 'kusion';
@@ -160,7 +160,7 @@ export function buildKusionTask(scope: vscode.WorkspaceFolder | vscode.TaskScope
         cwd: stackObj.kclWorkspaceRoot?.path
     };
 
-    const kusionTask = new vscode.Task(kind, scope, taskName, 'kusion', new vscode.ShellExecution(taskScript(stackObj.name), shellExecutionOptions));
+    const kusionTask = new vscode.Task(kind, scope, taskName, 'kusion', new vscode.ShellExecution(taskScript(stackObj.fullName), shellExecutionOptions));
     // task.presentationOptions.showReuseMessage=false;
     // task.presentationOptions.panel = vscode.TaskPanelKind.New;
     kusionTask.group = vscode.TaskGroup.Build;

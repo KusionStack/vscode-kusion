@@ -1,6 +1,7 @@
 import * as vscode from "vscode";
 import * as uri from 'vscode-uri';
 import * as fs from 'fs';
+import * as p from 'path';
 
 const kclModFile = 'kcl.mod';
 const ACTIVE_EDITOR_IN_KUSION_STACK = "inKusionStack";
@@ -22,19 +23,7 @@ export function setInKusionStack(value: boolean): Thenable<void> {
     return setContextValue(ACTIVE_EDITOR_IN_KUSION_STACK, value);
 }
 
-export function getStackFullName(path: vscode.Uri | string, root: vscode.Uri | undefined): string {
-    if (root === undefined) {
-        root = kclWorkspaceRoot(path);
-    }
-    if (root === undefined) {
-        // no KCL workspace root found, use stack's absolute file path
-        return path instanceof vscode.Uri ? path.fsPath : path;
-    }
-    const p = require('path');
-    return p.relative(root.path, path instanceof vscode.Uri ? path.path : path);
-}
-
-export function getProjectFullName(path: vscode.Uri | string, root: vscode.Uri | undefined): string {
+export function getProjectStackFullName(path: vscode.Uri | string, root: vscode.Uri | undefined): string {
     if (root === undefined) {
         root = kclWorkspaceRoot(path);
     }
@@ -53,10 +42,18 @@ export function kclWorkspaceRoot(path: vscode.Uri | string): vscode.Uri | undefi
         if (fs.existsSync(modPath.path)) {
             return fromUri;
         }
-        if (fromUri.path === '/') {
+        if (isRootPath(fromUri.path)) {
             return undefined;
         }
         fromUri = uri.Utils.dirname(fromUri);
+    }
+}
+
+function isRootPath(fsPath: string): boolean {
+    if (process.platform === 'win32') {
+        return /^[a-zA-Z]:\\$/.test(fsPath);
+    } else {
+        return fsPath === '/';
     }
 }
 
