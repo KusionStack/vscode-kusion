@@ -23,8 +23,7 @@ export function showDataPreview(dataPreviewSettings: ShowDataPreviewSettings) {
     var previewColumn = dataPreviewSettings.sideBySide ? vscode.ViewColumn.Beside : resourceColumn;
     const root = util.kclWorkspaceRoot(resource);
     const stackUri = uri.Utils.dirname(resource);
-    const stackFullName = util.getStackFullName(stackUri, root);
-
+    const stackFullName = util.getProjectStackFullName(stackUri, root);
     vscode.window.withProgress({
         location: vscode.ProgressLocation.Notification,
         title: "Generating stack configuration in YAML...",
