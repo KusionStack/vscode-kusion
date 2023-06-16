@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import * as util from './util';
-import * as stack from './stack';
+import * as stack from './ocmp';
 import * as child_process from 'child_process';
 import * as yaml from 'yaml';
 import * as output from './output';

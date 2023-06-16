@@ -48,7 +48,8 @@ export function kusionPreCheckByUri(targetUri: vscode.Uri | undefined): ocmp.Sta
     }
     const root = util.kclWorkspaceRoot(resolvedUri);
     const stackUri = uri.Utils.dirname(resolvedUri);
-    return new ocmp.Stack(stackUri, root);
+    const projectName =  uri.Utils.basename(uri.Utils.dirname(stackUri));
+    return new ocmp.Stack(stackUri, projectName, root);
 }
 
 function kusionPreCheck(): ocmp.Stack | undefined {
