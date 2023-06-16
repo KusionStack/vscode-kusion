@@ -8,12 +8,14 @@ export class Stack {
     readonly fullName: string;
     readonly uri: vscode.Uri;
     readonly kclWorkspaceRoot: vscode.Uri | undefined;
+    readonly project: string;
 
-    constructor(uri: vscode.Uri, root?: vscode.Uri | undefined) {
+    constructor(uri: vscode.Uri, project: string, root?: vscode.Uri | undefined) {
         this.name = vscodeUri.Utils.basename(uri);
         this.uri = uri;
         this.kclWorkspaceRoot = root;
         this.fullName = this.kclWorkspaceRoot === undefined ? uri.path : util.getProjectStackFullName(uri, root);
+        this.project = project;
     }
 }
 
@@ -43,7 +45,7 @@ export class Project {
                     vscode.workspace.fs.stat(vscode.Uri.joinPath(uri, dirname, 'stack.yaml')).then(
                         // if stack.yaml exists, then it is a stack, push to project.stacks
                         stat => {
-                            const stack = new Stack(vscode.Uri.joinPath(uri, dirname), root);
+                            const stack = new Stack(vscode.Uri.joinPath(uri, dirname), this.name, root);
                             stacks.push(stack);
                             count--;
                             if (count === 0) {

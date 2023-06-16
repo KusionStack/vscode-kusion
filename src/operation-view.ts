@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import * as stack from './stack';
+import * as stack from './ocmp';
 import { getNonce } from "./utilities/getNonce";
 import * as liveDiff from './livediff';
 
@@ -54,7 +54,7 @@ export async function showOperationDetail(context: vscode.ExtensionContext, curr
             <div class="row shadow-none p-3 mt-3 mb-3 bg-body-tertiary rounded">
                 <div class="col-md-6">
                     <label class="form-label col-md-2">project</label>
-                    <span class="text-body-secondary">${currentStack.project.name}</span>
+                    <span class="text-body-secondary">${currentStack.project}</span>
                 </div>
                 <div class="col-md-6">
                     <label class="form-label col-md-2">stack</label>
@@ -79,7 +79,7 @@ export async function showOperationDetail(context: vscode.ExtensionContext, curr
 </html>`;
     webview.webview.html = html;
     // set the initial operation info
-    webview.webview.postMessage({ command: 'init', data: new OperationInfo(currentStack.project.name, currentStack.name, StackStatus.syncing) });
+    webview.webview.postMessage({ command: 'init', data: new OperationInfo(currentStack.project, currentStack.name, StackStatus.syncing) });
 
     const p = new Promise<void>(async resolve => {
         let refreshIntervalId = setInterval(() => {
@@ -97,7 +97,7 @@ async function checkStackSynced(currentStack: stack.Stack, webview: vscode.Webvi
     // get live diff preview result
     liveDiff.livePreview(currentStack).then((liveDiffPreview)=>{
         // update the resources status ans resource map
-        const operationInfo = getOperationInfo(currentStack.project.name, currentStack.name, liveDiffPreview);
+        const operationInfo = getOperationInfo(currentStack.project, currentStack.name, liveDiffPreview);
         webview.postMessage({ command: 'update', data: operationInfo });
         if (operationInfo.status === StackStatus.synced) {
             afterReady();
