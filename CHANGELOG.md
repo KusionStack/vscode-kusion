@@ -95,3 +95,9 @@ All notable changes to the "kusion" extension will be documented in this file.
 ### Fixed
 
 - remove the `go-to-file` icon on the Runtime Diff page.
+
+## [0.0.19] - 2023-6-20
+
+### Updated
+
+- set the default value of settings [kusion.templates.location] to empty array to avoid always loading from online.
