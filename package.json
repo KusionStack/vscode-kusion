@@ -29,9 +29,7 @@
           "items": {
             "type": "string"
           },
-          "default": [
-            "https://github.com/KusionStack/kusion-templates.git"
-          ],
+          "default": [],
           "description": "Specifies the folder paths and the GitHub repositories containing Kusion Templates to use to init Kusion Project."
         }
       }
