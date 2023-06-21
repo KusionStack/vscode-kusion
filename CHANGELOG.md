@@ -101,3 +101,9 @@ All notable changes to the "kusion" extension will be documented in this file.
 ### Updated
 
 - set the default value of settings [kusion.templates.location] to empty array to avoid always loading from online.
+
+## [0.0.20] - 2023-6-21
+
+### Bug fix
+
+- fix bug: pass the stack work directory instead of the stack's name to the kusion command
