@@ -110,7 +110,7 @@
 
         switch (message.command) {
             case 'init':
-                option.title.text = "Stack Status:" + " " + message.data.stack;
+                option.title.text = "Status of Stack " + message.data.stack;
                 statusSpan.innerText = message.data?.status;
                 statusSpan.style.color = getStackStatusColor(message.data?.status);
                 myChart.setOption(option);

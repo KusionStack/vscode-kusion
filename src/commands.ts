@@ -99,12 +99,12 @@ export function kusionConfirmApply(context: vscode.ExtensionContext) {
         return;
     }
     const modified = input.modified;
-    const title = `This action will apply all the resources defined in the stack ${currentStack.name}.\nFullfill the stack name ${currentStack.name} to confirm`;
+    const title = `This action will apply all the resources defined in the stack ${currentStack.fullName}.\nFullfill the stack name to confirm`;
     vscode.window.showInputBox({
-        title: title, value: currentStack.name, placeHolder: currentStack.name, validateInput: (value): string | vscode.InputBoxValidationMessage | undefined => {
-            if (value !== currentStack.name) {
+        title: title, value: currentStack.fullName, placeHolder: currentStack.fullName, validateInput: (value): string | vscode.InputBoxValidationMessage | undefined => {
+            if (value !== currentStack.fullName) {
                 return {
-                    message: `Stack Path mismatch: ${currentStack.name}`,
+                    message: `Stack Path mismatch: ${currentStack.fullName}`,
                     severity: 3
                 };
             } else {
@@ -115,7 +115,7 @@ export function kusionConfirmApply(context: vscode.ExtensionContext) {
             }
         }
     }, undefined).then((input) => {
-        if (input === currentStack.name) {
+        if (input === currentStack.fullName) {
             operationView.showOperationDetail(context, currentStack);
             kusionCommandRun('apply', currentStack);
         }
