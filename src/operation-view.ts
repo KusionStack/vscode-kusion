@@ -11,7 +11,7 @@ function getViewTitle(stackLabel: string, locked: boolean,): string {
 
 export async function showOperationDetail(context: vscode.ExtensionContext, currentStack: stack.Stack) {
     var previewColumn = (vscode.window.activeTextEditor && vscode.window.activeTextEditor.viewColumn) || vscode.ViewColumn.One;
-    const stackFullName = currentStack.name;
+    const stackFullName = currentStack.fullName;
     const webview = vscode.window.createWebviewPanel(
         viewType,
         getViewTitle(stackFullName, true),
