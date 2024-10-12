@@ -1,4 +1,6 @@
 # Kusion Extension for Visual Studio Code
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FKusionStack%2Fvscode-kusion.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2FKusionStack%2Fvscode-kusion?ref=badge_shield)
+
 
 The [VS Code Kusion extension](https://marketplace.visualstudio.com/items?itemName=KusionStack.kusion) provides convenient operations to deliver KCL configurations to Clouds.
 
@@ -65,3 +67,6 @@ We are working actively on improving the experience of Kusion on VS Code. All ki
 ## License
 
 Apache License Version 2.0
+
+
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FKusionStack%2Fvscode-kusion.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2FKusionStack%2Fvscode-kusion?ref=badge_large)
